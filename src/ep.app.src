@@ -1,0 +1,9 @@
+%% -*- erlang -*-
+
+{application, ep,
+ [ {description, "Erlang Press"}
+ , {vsn, "1.0.0"}
+ , {registered, []}
+ , {applications, [ kernel
+                  , stdlib ]}
+, {env, []} ]}.

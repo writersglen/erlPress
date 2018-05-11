@@ -1,0 +1,27 @@
+
+
+
+- Project Management
+    -- Project specifications
+        Directory: project
+        ep_project.erl
+           Questions: Need format select function to assure format fits paperstock
+                      How to enter deadline?
+
+
+- Format Definitions and Resources
+    -- 
+- Text Processing
+    -- Markdown text to xml
+         Directory: copy/cmark_parse
+         md_parse.erl 
+             Working: tests 1 through 3
+ 
+- Type Specification 
+- Page Layout
+    -- graphic elements
+         Directory: elements
+         Needs Testing: eg_layout_prims.erl
+- Copyfitting/Paste-up
+- Publish
+

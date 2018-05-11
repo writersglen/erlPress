@@ -1,0 +1,82 @@
+%PDF-1.4
+1 0 obj
+<<
+>>
+endobj
+2 0 obj
+<<
+>>
+endobj
+3 0 obj
+<<
+/Type  /Page 
+/Count  1 
+/MediaBox  [  0  0  595  842  ] 
+/Kids  [  5 0 R  ] 
+/Resources <<
+/Font  2 0 R 
+/XObject  1 0 R 
+/ProcSet  [  /PDF  /Text  ] 
+>>
+
+>>
+endobj
+4 0 obj
+<<
+/Length  196 
+>>
+
+stream
+[] 0 d
+ 1.00 0.00 0.00  RG
+ 1.00 0.00 0.00  rg
+ 300 720  m 300 747.61 255.23 770 200 770  c
+144.77 770 100 747.61 100 720  c
+100 692.39 144.77 670 200 670  c
+255.23 670 300 692.39 300 720  c
+  B  
+endstream
+endobj
+5 0 obj
+<<
+/Type  /Page 
+/Parent  3 0 R 
+/Contents  4 0 R 
+>>
+endobj
+6 0 obj
+<<
+/Type  /Catalog 
+/Pages  3 0 R 
+>>
+endobj
+7 0 obj
+<<
+/Creator  (Erlang) 
+/CreationDate (D:20180428140007)
+/Producer  (erlguten-3.1) 
+/Author  () 
+/Title  () 
+/Subject  () 
+/Keywords  (ErlangKeyword) 
+>>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000030 00000 n 
+0000000051 00000 n 
+0000000228 00000 n 
+0000000478 00000 n 
+0000000547 00000 n 
+0000000600 00000 n 
+trailer
+<<
+/Size 8
+/Root 6 0 R
+/Info 7 0 R
+>>
+startxref
+768
+%%EOF
