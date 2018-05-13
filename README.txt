@@ -74,10 +74,6 @@ ep_page_grids.erl
 3rd Party Libs
 ==============
 
-. CMARK
-
-CommonMark parsing and rendering library and program in C
-
-Linux  : https://github.com/commonmark/cmark
-Windows: https://github.com/commonmark/cmark
-macOS  : brew install cmark
+. CMARK: CommonMark parsing and rendering library and program in C
+  to convert cmark_nodes to ERLANG terms strings:
+  https://github.com/skaee/cmark

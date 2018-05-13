@@ -5,6 +5,7 @@
 # ----------------------------------------------------
 OPTS         ?=
 ERL          ?=$(shell which erl || echo no)
+CMAKE        ?=$(shell which cmake || echo no)
 PROJECT      ?=$(shell basename `pwd` | sed -e 's|\-.*||')
 REBAR        ?=./rebar
 REBAR_CONFIG :=rebar.config
@@ -12,8 +13,12 @@ REBAR_CONFIG :=rebar.config
 # ----------------------------------------------------
 # PREREQUISITES
 # ----------------------------------------------------
-ifeq ($(ERL),)
-$(error "Erlang not available on this system")
+ifeq ($(ERL),no)
+$(error "Erlang is not available on this system")
+endif
+
+ifeq ($(CMAKE),no)
+$(error "CMAKE is not available on this system")
 endif
 
 # ----------------------------------------------------
@@ -22,6 +27,7 @@ endif
 .PHONY: all 					\
 				clean 				\
 				compile 			\
+				cmark         \
 				distclean 		\
 				flymake 			\
 				get-deps			\
@@ -33,8 +39,21 @@ endif
 # ----------------------------------------------------
 # MAIN
 # ----------------------------------------------------
-all: $(REBAR) get-deps flymake
+all: $(REBAR) get-deps flymake cmark
 	@$(REBAR) -C $(REBAR_CONFIG) compile skip_deps=true
+
+# ----------------------------------------------------
+# CMARK
+# ----------------------------------------------------
+cmark: priv
+	@$(MAKE) -C $(PWD)/src/content/cmark_parse/$@
+	@cp -f $(PWD)/src/content/cmark_parse/$@/build/src/$@ $(PWD)/priv/$@
+
+# ----------------------------------------------------
+# PRIV dir
+# ----------------------------------------------------
+priv:
+	@mkdir -p priv
 
 # ----------------------------------------------------
 # SHELL
@@ -76,7 +95,7 @@ clean:
 
 distclean: clean
 	@if test -f $(REBAR); then $(REBAR) -C $(REBAR_CONFIG) delete-deps; rm -f $(REBAR); else break; fi
-	@rm -rf deps $(PWD)/ebin
+	@rm -rf deps $(PWD)/ebin $(PWD)/priv $(PWD)/src/content/cmark_parse/cmark/build
 	@rm -rf .rebar $(PWD)/deps/*/.rebar $(REBAR)
 
 # ----------------------------------------------------

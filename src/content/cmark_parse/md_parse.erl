@@ -1,32 +1,35 @@
-%%% *********************************************************   
+%%% *********************************************************
 %%% ep_md_parse.erl
 %%%
 %%% {c) 2017 Lloyd R. Prentice
 %%% Authors:    Patrice Bruno, Lloyd R. Prentice
-%%% License: 
+%%% License:
 %%% File:       ep_tests.erl
-%%% Description: 
-%%%    Erlang wrapper around cmark Markdown parser  
-%%%    https://github.com/commonmark/cmark
+%%% Description:
+%%%    Erlang wrapper around cmark Markdown parser
+%%%    https://github.com/skaee/cmark
 %%%    Should probably be re-implimented as an Erlang nif
 
 
-%%% ********************************************************* 
+%%% *********************************************************
 
 -module(md_parse).
 
--define(COPY_PATH, "/home/lloyd/ep/src/copy/copy_samples/").
--define(PARSER, "/home/lloyd/ep/src/copy/cmark_parse/cmark ").
+%% -define(COPY_PATH, "/home/lloyd/ep/src/copy/copy_samples/").
+%% -define(PARSER, "/home/lloyd/ep/src/copy/cmark_parse/cmark ").
+
+-define(PARSER, parser()).
+
 -define(SAMPLE1, "example.md").
 -define(SAMPLE2, "paragraph.md").
 -define(SAMPLE3, "test.md").
 
 %% TEST
-%% 
+%%
 %% Requires Dir: copy_samples
-%% 
-%% test1: 
-%% 
+%%
+%% test1:
+%%
 %% N> md_parse:parse(SAMPLE1).
 %% test1: N> md_parse:parse(SAMPLE1).
 %% test2: N> md_parse:parse(SAMPLE2).
@@ -53,16 +56,34 @@ test_parse3() ->
 %% We need to parse out get_copy/1
 
 parse(FileName) ->
-   CopyPath    = ?COPY_PATH,
-   CopySource  = CopyPath ++ FileName,
+   CopySource  = FileName,
    Parser      = ?PARSER,
    Destination = CopySource ++ ".erlang",
    os:cmd(Parser ++ CopySource ++ " -t erlang > " ++ Destination),
    {ok, [Terms]} = get_file(FileName),
    Terms.
-   
-get_file(FileName) ->    
-   FilePath = ?COPY_PATH ++ FileName,
+
+get_file(FileName) ->
+   FilePath = FileName,
    Destination = FilePath ++ ".erlang",
    file:consult(Destination).
 
+parser() ->
+    PrivDir = priv_dir(?MODULE),
+    filename:join([PrivDir, "cmark"]).
+
+%%--------------------------------------------------------------------
+%% @doc Returns the module's "priv" directory.
+%% @end
+%% @private
+-spec priv_dir(atom()) -> string().
+%%--------------------------------------------------------------------
+priv_dir(Mod) ->
+    case code:priv_dir(Mod) of
+        {error, _} ->
+            EbinDir = filename:dirname(code:which(Mod)),
+            AppPath = filename:dirname(EbinDir),
+            filename:join(AppPath, "priv");
+        Path ->
+            Path
+    end.
