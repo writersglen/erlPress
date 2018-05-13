@@ -37,6 +37,9 @@ page_elements() ->
     {line,        line_map3()},
     {circle,      circle_map()},
     {circle,      circle_map1()},
+    {ellipse,     ellipse_map()},
+    {ellipse,     ellipse_map1()},
+    {bezier,      bezier_map()},
     {image,       image_map()},
     {image,       image_map1()}
    ].
@@ -69,6 +72,18 @@ circle_map() ->
 circle_map1() -> 
   Map = ep_circle:create(300, 250, 50),
   ep_circle:update_fill_color(yellow, Map).
+ 
+ellipse_map() -> 
+  ep_ellipse:create(450, 250, 100, 50).
+ 
+ellipse_map1() -> 
+  Map = ep_ellipse:create(450, 150, 100, 50),
+  ep_ellipse:update_fill_color(yellow, Map).
+ 
+bezier_map() -> 
+  Map = ep_bezier:create({110, 325}, {260, 300}, {410, 340}, {550, 325}),
+  Map1 = ep_bezier:update_width(1, Map),
+  ep_bezier:update_color(red, Map1).
  
 image_map() ->
   ep_image:create("freein_pancho.jpg", {100, 650}, {width, 200}).

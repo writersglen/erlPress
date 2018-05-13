@@ -14,7 +14,7 @@
                         eg_hyphen_rules_sv_SE,eg_hyphenate,eg_lib,
                         eg_line_break,eg_mk_hyphen,eg_pdf,eg_pdf_image,
                         eg_pdf_lib,eg_pdf_op,eg_richText,eg_xml2richText,
-                        eg_xml_lite,eg_xml_tokenise,ep_block,ep_box,
+                        eg_xml_lite,eg_xml_tokenise,ep_bezier,ep_block,ep_box,
                         ep_check_box,ep_circle,ep_copyfit,ep_digital,ep_dot,
                         ep_ellipse,ep_exper,ep_exper1,ep_exper2,ep_exper3,
                         ep_exper4,ep_exper5,ep_exper6,ep_exper7,ep_fitcopy,

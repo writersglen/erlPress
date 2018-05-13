@@ -57,8 +57,14 @@ paste_to_pdf(PDF, page_no, Map) ->
 paste_to_pdf(PDF, line, Map) ->
    ep_line:line_to_pdf(PDF, Map);
 
+paste_to_pdf(PDF, bezier, Map) ->
+   ep_bezier:bezier_to_pdf(PDF, Map);
+
 paste_to_pdf(PDF, circle, Map) ->
    ep_circle:circle(PDF, Map);
+
+paste_to_pdf(PDF, ellipse, Map) ->
+   ep_ellipse:ellipse(PDF, Map);
 
 paste_to_pdf(PDF, image, Map) ->
    ep_image:image_to_pdf(PDF, Map).

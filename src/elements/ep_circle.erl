@@ -37,12 +37,12 @@
 -export ([center/1, radius/1, border_style/1, border_color/1]).
 -export ([fill_color/1, format/1]). 
 -export ([dimensions/1, border_specs/1, colors/1]). 
--export([update_center/3]).
+-export ([update_center/3]).
 -export ([update_radius/2, update_border/2, update_border_style/2]).
 -export ([update_border_color/2, update_fill_color/2, update_format/2]).
--export([circle/2]).
+-export ([circle/2]).
 
-% -compile(export_all).
+%% -compile(export_all).
 
 -include("../../include/ep.hrl").
 
@@ -51,6 +51,12 @@
 -define(DEFAULT_BORDER_STYLE, solid).
 -define(DEFAULT_FILL_COLOR, white).
 -define(DEFAULT_FORMAT, letter).
+
+%% Border style options: solid, dash, dot, dashdot
+%% Color options: white, silver, gray, black, maroon, red, fuschia,
+%%                purple, lime, green, olive, yellow, navy, blue, teal, aqua 
+%% Format options: N> rp(ep_format:formats()). 
+
 
 %% ***********************************************************
 %% Create circle map 
@@ -170,43 +176,43 @@ colors(CircleMap) ->
 %% Update circle parameters 
 %% ***********************************************************
 
-%% Outline: solid, dash, dot, dashdot
+%% Border style: solid, dash, dot, dashdot
 %% Colors: white, silver, gray, black, maroon, red, fuschia,
 %%         purple, lime, green, olive, yellow, navy, blue, teal, aqua 
 
 
 %% @doc Update center coordinates 
 
--spec update_center(X :: integer(),
-                    Y :: integer(),
+-spec update_center(CenterX   :: integer(),
+                    CenterY   :: integer(),
                     CircleMap :: map()) -> tuple().
 
-update_center(X, Y, CircleMap) ->
-    maps:put(center, {X, Y}, CircleMap).
+update_center(CenterX, CenterY, CircleMap) ->
+    maps:put(center, {CenterX, CenterY}, CircleMap).
 
 
 %% @doc Update radius 
 
--spec update_radius(Radius :: integer(),
+-spec update_radius(Radius    :: integer(),
                     CircleMap :: map()) -> tuple().
 
 update_radius(Radius, CircleMap) ->
-    maps:put(y, Radius, CircleMap).
+    maps:put(radius, Radius, CircleMap).
 
 
 %% @doc Update border 
 
--spec update_border(Border :: integer(),
+-spec update_border(Border    :: integer(),
                     CircleMap :: map()) -> tuple().
 
 update_border(Border, CircleMap) ->
-    maps:put(radius, Border, CircleMap).
+    maps:put(border, Border, CircleMap).
 
 
 %% @doc Update border style 
 
 -spec update_border_style(BorderStyle :: integer(),
-                    CircleMap :: map()) -> tuple().
+                          CircleMap   :: map()) -> tuple().
 
 update_border_style(BorderStyle, CircleMap) ->
     maps:put(border_style, BorderStyle, CircleMap).
@@ -215,7 +221,7 @@ update_border_style(BorderStyle, CircleMap) ->
 %% @doc Update border color 
 
 -spec update_border_color(BorderColor :: integer(),
-                    CircleMap :: map()) -> tuple().
+                          CircleMap   :: map()) -> tuple().
 
 update_border_color(BorderColor, CircleMap) ->
     maps:put(border_color, BorderColor, CircleMap).
@@ -223,7 +229,7 @@ update_border_color(BorderColor, CircleMap) ->
 %% @doc Update fill color 
 
 -spec update_fill_color(FillColor :: integer(),
-                    CircleMap :: map()) -> tuple().
+                        CircleMap :: map()) -> tuple().
 
 update_fill_color(FillColor, CircleMap) ->
     maps:put(fill_color, FillColor, CircleMap).
@@ -231,7 +237,7 @@ update_fill_color(FillColor, CircleMap) ->
 
 %% @doc Update format 
 
--spec update_format(Format :: integer(),
+-spec update_format(Format    :: integer(),
                     CircleMap :: map()) -> tuple().
 
 update_format(Format, CircleMap) ->
@@ -239,7 +245,7 @@ update_format(Format, CircleMap) ->
 
 
 %% ***********************************************************
-%% circle/2, solid_circle/2  
+%% circle/2  
 %% ***********************************************************
 
 circle(PDF, CircleMap) ->

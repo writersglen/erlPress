@@ -1,8 +1,9 @@
 %%==========================================================================
 %% ep_ellipse.erl
-%% {c) 2017 Lloyd R. Prentice
-%% Author:     Lloyd R. Prentice
 %%
+%% @copyright  2017 Lloyd R. Prentice
+%% @author     Lloyd R. Prentice
+%% @doc
 %% License: 
 %% Permission is hereby granted, free of charge, to any person obtaining a
 %% copy of this software and associated documentation files (the
@@ -27,148 +28,242 @@
 %% File:       ep_ellipse.erl
 %% Description: 
 %%    Layout primitives 
+%% @end
 %%==========================================================================
 
 -module (ep_ellipse).
 
--export ([new/4, ellipse/2]). 
--export ([dimensions/1, colors/1]). 
--export ([id/1, x/1, y/1, width/1, height/1]).
--export ([outline/1, outline_color/1, fill_color/1]).
--export ([path/1]).
--export ([update_id/2, update_x/2, update_y/2]).
--export ([update_width/2, update_height/2]).
--export ([update_outline/2, update_outline_color/2, update_fill_color/2]).
--export ([update_path/2]).
+-export ([create/4]).
+-export ([center/1, dimensions/1, border_style/1, border_color/1]). 
+-export ([fill_color/1, format/1]).
+-export ([ellipse_specs/1, border_specs/1, colors/1]). 
+-export ([update_center/3]).
+-export ([update_dimensions/3, update_border/2, update_border_style/2]).
+-export ([update_border_color/2, update_fill_color/2, update_format/2]).
+-export ([ellipse/2]).
 
-% -compile(export_all).
+%% -compile(export_all).
 
 -include("../../include/ep.hrl").
 
-%% ***********************************************************
-%% new/3 
-%% ***********************************************************
+-define(DEFAULT_BORDER, 1).
+-define(DEFAULT_BORDER_COLOR, black).
+-define(DEFAULT_BORDER_STYLE, solid).
+-define(DEFAULT_FILL_COLOR, white).
+-define(DEFAULT_FORMAT, letter).
 
-%% Outline: solid, dash, dot, dashdot
-%% Colors: white, silver, gray, black, maroon, red, fuschia,
-%%         purple, lime, green, olive, yellow, navy, blue, teal, aqua 
-%% Path:   stroke, fill, fill_stroke
-
-new(X, Y, Width, Height) ->
-   NewCircle = [{id,            {0, 0, undefined}},  % {Page, Panel, Alias}
-                {x,             X},
-                {y,             Y},
-                {width,         Width},
-                {height,        Height},
-                {outline,       solid},
-                {outline_color, black},
-                {fill_color,    white},
-                {path,          fill_stroke}
-               ],
-    maps:from_list(NewCircle).
-
-%% ***********************************************************
-%% circle/2, solid_circle/2  
-%% ***********************************************************
-
-ellipse(PDF, Ellipse) ->
-    {X, Y, Width, Height} = dimensions(Ellipse),
-    {Outline, OutlineColor, FillColor} = colors(Ellipse),    
-    Path = path(Ellipse),
-    eg_pdf:set_dash(PDF, Outline),
-    eg_pdf:set_stroke_color(PDF, OutlineColor),
-    eg_pdf:set_fill_color(PDF, FillColor),
-    eg_pdf:ellipse(PDF, {X, Y}, {Width, Height}),
-    eg_pdf:path(PDF, Path).
-
-    
-%% ***********************************************************
-%% ellipse_dimensions/1, circle_colors/1  
-%% ***********************************************************
-
-dimensions(Ellipse) ->
-    X      = x(Ellipse),
-    Y      = y(Ellipse),
-    Width  = width(Ellipse),
-    Height = height(Ellipse),
-    {X, Y, Width, Height}.
-
-colors(Ellipse) ->
-    Outline      = outline(Ellipse),
-    OutlineColor = outline_color(Ellipse),
-    FillColor    = fill_color(Ellipse),
-    {Outline, OutlineColor, FillColor}.
+%% Border style options: solid, dash, dot, dashdot
+%% Color options: white, silver, gray, black, maroon, red, fuschia,
+%%                purple, lime, green, olive, yellow, navy, blue, teal, aqua 
+%% Format options: N> rp(ep_format:formats()). 
 
 
 %% ***********************************************************
-%% Get circle parameters 
+%% Create ellipse map 
 %% ***********************************************************
 
-id(Ellipse) ->
-    maps:get(id, Ellipse).
+%% @doc Create ellipse map
 
-x(Ellipse) ->
-    maps:get(x, Ellipse).
+-spec create(CenterX  :: integer(),
+             CenterY  :: integer(),
+             XRadius  :: integer(),
+             YRadius  :: integer()) -> map().
 
-y(Ellipse) ->
-    maps:get(y, Ellipse).
 
-width(Ellipse) ->
-    maps:get(width, Ellipse).
+create(CenterX, CenterY, XRadius, YRadius) ->
+   #{ center         => {CenterX, CenterY}
+    , dimensions     => {XRadius, YRadius}
+    , border         => ?DEFAULT_BORDER
+    , border_style   => ?DEFAULT_BORDER_STYLE
+    , border_color   => ?DEFAULT_BORDER_COLOR 
+    , fill_color     => ?DEFAULT_FILL_COLOR 
+    , format         => ?DEFAULT_FORMAT 
+    }. 
 
-height(Ellipse) ->
-    maps:get(height, Ellipse).
 
-outline(Ellipse) ->
-    maps:get(outline, Ellipse).
+%% ***********************************************************
+%% Get ellipse attributes  
+%% ***********************************************************
 
-outline_color(Ellipse) ->
-    maps:get(outline_color, Ellipse).
 
-fill_color(Ellipse) ->
-    maps:get(fill_color, Ellipse).
+%% @doc Return center coordinates 
 
-path(Ellipse) ->
-    maps:get(path, Ellipse).
+-spec center(EllipseMap :: map()) -> tuple().
+
+center(EllipseMap) ->
+   maps:get(center, EllipseMap).
+
+
+%% @doc Return dimensions 
+
+-spec dimensions(EllipseMap :: map()) -> tuple().
+
+dimensions(EllipseMap) ->
+   maps:get(dimensions, EllipseMap).
+
+%% @doc Return border  
+
+-spec border(EllipseMap :: map()) -> tuple().
+
+border(EllipseMap) ->
+   maps:get(border, EllipseMap).
+
+
+%% @doc Return border style 
+
+-spec border_style(EllipseMap :: map()) -> tuple().
+
+border_style(EllipseMap) ->
+   maps:get(border_style, EllipseMap).
+
+
+%% @doc Return border color 
+
+-spec border_color(EllipseMap :: map()) -> tuple().
+
+border_color(EllipseMap) ->
+   maps:get(border_color, EllipseMap).
+
+
+%% @doc Return fill color 
+
+-spec fill_color(EllipseMap :: map()) -> tuple().
+
+fill_color(EllipseMap) ->
+   maps:get(fill_color, EllipseMap).
+
+
+
+
+%% @docc Return page format 
+
+-spec format(EllipseMap :: map()) -> tuple().
+
+format(EllipseMap) ->
+   maps:get(format, EllipseMap).
+
+
+%% @doc Return ellipse specifications 
+
+-spec ellipse_specs(EllipseMap :: map()) -> tuple().
+
+ellipse_specs(EllipseMap) ->
+    {CenterX, CenterY} = center(EllipseMap),
+    {XRadius, YRadius} = dimensions(EllipseMap),
+    {CenterX, CenterY, XRadius, YRadius}.
+
+
+%% @doc Return border specifications 
+
+-spec border_specs(EllipseMap :: map()) -> tuple().
+
+border_specs(EllipseMap) ->
+    Border = border(EllipseMap),
+    Style  = border_style(EllipseMap),
+    Color  = border_color(EllipseMap),
+    {Border, Style, Color}.
+
+%% @doc Return border and fill colors 
+
+-spec colors(EllipseMap :: map()) -> tuple().
+
+colors(EllipseMap) ->
+    BorderColor  = border_color(EllipseMap),
+    FillColor    = fill_color(EllipseMap),
+    {BorderColor, FillColor}.
+
 
 %% ***********************************************************
 %% Update ellipse parameters 
 %% ***********************************************************
 
-update_id(ID, Ellipse) ->
-    maps:put(id, ID, Ellipse).
-
-update_x(X, Ellipse) ->
-    maps:put(x, X, Ellipse).
-
-update_y(Y, Ellipse) ->
-    maps:put(y, Y, Ellipse).
-
-update_width(Width, Ellipse) ->
-    maps:put(width, Width, Ellipse).
-
-update_height(Height, Ellipse) ->
-    maps:put(height, Height, Ellipse).
-
-%% Outline: solid, dash, dot, dashdot
-
-update_outline(Outline, Ellipse) ->
-    maps:put(outline, Outline, Ellipse).
-
+%% Border style: solid, dash, dot, dashdot
 %% Colors: white, silver, gray, black, maroon, red, fuschia,
 %%         purple, lime, green, olive, yellow, navy, blue, teal, aqua 
 
-update_outline_color(Outline_Color, Ellipse) ->
-    maps:put(outline_color, Outline_Color, Ellipse).
+%% @doc Update center coordinates 
 
-update_fill_color(FillColor, Ellipse) ->
-    maps:put(fill_color, FillColor, Ellipse).
+-spec update_center(CenterX :: integer(),
+                    CenterY :: integer(),
+                    EllipseMap :: map()) -> tuple().
 
-%% Path:   stroke, fill, fill_stroke
-
-update_path(Path, Ellipse) ->
-    maps:put(path, Path, Ellipse).
+update_center(CenterX, CenterY, EllipseMap) ->
+    maps:put(center, {CenterX, CenterY}, EllipseMap).
 
 
+%% @doc Update dimensions 
 
+-spec update_dimensions(XRadius    :: integer(),
+                        YRadius    :: integer(),
+                        EllipseMap :: map()) -> tuple().
+
+update_dimensions(XRadius, YRadius, EllipseMap) ->
+    maps:put(radius, {XRadius, YRadius}, EllipseMap).
+
+
+%% @doc Update border 
+
+-spec update_border(Border     :: integer(),
+                    EllipseMap :: map()) -> tuple().
+
+update_border(Border, EllipseMap) ->
+    maps:put(border, Border, EllipseMap).
+
+
+%% @doc Update ellipse style 
+
+-spec update_border_style(BorderStyle :: integer(),
+                          EllipseMap  :: map()) -> tuple().
+
+update_border_style(BorderStyle, EllipseMap) ->
+    maps:put(border_style, BorderStyle, EllipseMap).
+
+
+%% @doc Update border color 
+
+-spec update_border_color(BorderColor :: integer(),
+                          EllipseMap  :: map()) -> tuple().
+
+update_border_color(BorderColor, EllipseMap) ->
+    maps:put(border_color, BorderColor, EllipseMap).
+
+%% @doc Update fill color 
+
+-spec update_fill_color(FillColor  :: integer(),
+                        EllipseMap :: map()) -> tuple().
+
+update_fill_color(FillColor, EllipseMap) ->
+    maps:put(fill_color, FillColor, EllipseMap).
+
+
+%% @doc Update format 
+
+-spec update_format(Format     :: integer(),
+                    EllipseMap :: map()) -> tuple().
+
+update_format(Format, EllipseMap) ->
+    maps:put(format, Format, EllipseMap).
+
+
+
+%% ***********************************************************
+%% circle/2, solid_circle/2  
+%% ***********************************************************
+
+ellipse(PDF, EllipseMap) ->
+    {CenterX, CenterY}       = center(EllipseMap),
+    {XRadius, YRadius}       = dimensions(EllipseMap),
+    {BorderColor, FillColor} = colors(EllipseMap),    
+    Format                   = format(EllipseMap),
+    CenterY1                 = ep_lib:v_flip(CenterY, Format),
+    {Border, BorderStyle, BorderColor} = border_specs(EllipseMap),
+    FillColor                = fill_color(EllipseMap),
+    eg_pdf:save_state(PDF),
+    eg_pdf:set_line_width(PDF, Border),
+    eg_pdf:set_dash(PDF, BorderStyle),
+    eg_pdf:set_stroke_color(PDF, BorderColor),
+    eg_pdf:set_fill_color(PDF, FillColor),
+    eg_pdf:ellipse(PDF, {CenterX, CenterY1}, {XRadius, YRadius}),
+    eg_pdf:path(PDF, fill_stroke),
+    eg_pdf:restore_state(PDF).
 
