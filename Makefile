@@ -27,7 +27,6 @@ endif
 .PHONY: all 					\
 				clean 				\
 				compile 			\
-				cmark         \
 				distclean 		\
 				flymake 			\
 				get-deps			\
