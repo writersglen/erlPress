@@ -39,21 +39,8 @@ endif
 # ----------------------------------------------------
 # MAIN
 # ----------------------------------------------------
-all: $(REBAR) get-deps flymake cmark
+all: $(REBAR) get-deps flymake
 	@$(REBAR) -C $(REBAR_CONFIG) compile skip_deps=true
-
-# ----------------------------------------------------
-# CMARK
-# ----------------------------------------------------
-cmark: priv
-	@$(MAKE) -C $(PWD)/src/content/cmark_parse/$@
-	@cp -f $(PWD)/src/content/cmark_parse/$@/build/src/$@ $(PWD)/priv/$@
-
-# ----------------------------------------------------
-# PRIV dir
-# ----------------------------------------------------
-priv:
-	@mkdir -p priv
 
 # ----------------------------------------------------
 # SHELL
