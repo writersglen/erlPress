@@ -14,7 +14,7 @@ The erlPress print-media page layout and typesetting system modifies and extends
 
 https://github.com/hwatkins/erlguten
 
-As of Version .01, ErlPress is a work-in-progress with many deficiencies and rough-edges. You might consider it a PDF generation test bed. The MIT license encourages evolution toward world-class functionality and performance including:
+ErlPress is a work-in-progress with many deficiencies and rough-edges. You might consider it a PDF generation test bed. The MIT license encourages evolution toward world-class functionality and performance including:
 
 * print project management
 * page design and layout
