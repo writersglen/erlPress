@@ -31,7 +31,7 @@
 %% MACRO
 %% ====================================================================
 
--define(COPY_PATH, "src/copy/copy_samples").
+-define(COPY_PATH, "./src/content/copy_samples").
 
 -define(SAMPLE1, "example.md").
 -define(SAMPLE2, "paragraph.md").

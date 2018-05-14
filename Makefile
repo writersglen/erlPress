@@ -82,6 +82,7 @@ clean:
 
 distclean: clean
 	@if test -f $(REBAR); then $(REBAR) -C $(REBAR_CONFIG) delete-deps; rm -f $(REBAR); else break; fi
+	@rm -f $(PWD)/src/content/copy_samples/*.md.erlang
 	@rm -rf deps $(PWD)/ebin $(PWD)/priv $(PWD)/src/content/cmark_parse/cmark/build
 	@rm -rf .rebar $(PWD)/deps/*/.rebar $(REBAR)
 
