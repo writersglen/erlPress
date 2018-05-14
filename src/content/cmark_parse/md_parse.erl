@@ -17,8 +17,6 @@
 
 -define(COPY_PATH, "src/copy/copy_samples").
 
--define(PARSER, parser()).
-
 -define(SAMPLE1, "example.md").
 -define(SAMPLE2, "paragraph.md").
 -define(SAMPLE3, "test.md").
@@ -60,18 +58,12 @@ test_parse3() ->
 
 %% We need to parse out get_copy/1
 
-parse(FileName) ->
-   CopySource  = FileName,
-   Parser      = ?PARSER,
-   Destination = CopySource ++ ".erlang",
-   os:cmd(Parser ++ CopySource ++ " -t erlang > " ++ Destination),
-   {ok, [Terms]} = get_file(FileName),
-   Terms.
-
-get_file(FileName) ->
-   FilePath = FileName,
-   Destination = FilePath ++ ".erlang",
-   file:consult(Destination).
+parse(Source) ->
+    Dest    = Source ++ ".erlang",
+    Command = string:join([parser(), Source, "-t erlang >", Dest], " "),
+    _ = os:cmd(Command), %% TODO: check errors
+    {ok, [Terms]} = file:consult(Dest),
+    Terms.
 
 parser() ->
     PrivDir = ep_utils:priv_dir(?MODULE),
