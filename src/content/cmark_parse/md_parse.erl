@@ -15,14 +15,9 @@
 
 -module(md_parse).
 
--define(COPY_PATH, "src/copy/copy_samples").
+-export([parse/1]).
+-export([test_parse1/0, test_parse2/0, test_parse3/0]).
 
--define(SAMPLE1, "example.md").
--define(SAMPLE2, "paragraph.md").
--define(SAMPLE3, "test.md").
-
-%% TEST
-%%
 %% Requires Dir: copy_samples
 %%
 %% test1:
@@ -33,28 +28,31 @@
 
 
 %% ====================================================================
+%% MACRO
+%% ====================================================================
+
+-define(COPY_PATH, "src/copy/copy_samples").
+
+-define(SAMPLE1, "example.md").
+-define(SAMPLE2, "paragraph.md").
+-define(SAMPLE3, "test.md").
+
+%% ====================================================================
 %% API functions
 %% ====================================================================
 
-
--export([parse/1]).
--export([test_parse1/0, test_parse2/0, test_parse3/0]).
-
-
-filename(F) ->
-    filename:join([?COPY_PATH, F]).
-
 test_parse1() ->
-    FileName = filename(?SAMPLE1),
-    md_parse:parse(FileName).
+    test_parse(?SAMPLE1).
 
 test_parse2() ->
-    FileName = filename(?SAMPLE2),
-    md_parse:parse(FileName).
+    test_parse(?SAMPLE2).
 
 test_parse3() ->
-    FileName = filename(?SAMPLE3),
-    md_parse:parse(FileName).
+    test_parse(?SAMPLE3).
+
+test_parse(Sample) ->
+    Source = filename:join([?COPY_PATH, Sample]),
+    md_parse:parse(Source).
 
 %% We need to parse out get_copy/1
 
