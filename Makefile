@@ -73,12 +73,12 @@ xref: all
 # CLEANUP
 # ----------------------------------------------------
 flymake:
-	@rm -f $(PWD)/src/*flymake* $(PWD)/deps/*/src/*flymake*
+	@rm -f $(PWD)/src/*flymake* $(PWD)/src/*/*flymake* $(PWD)/deps/*/src/*flymake*
 
 clean:
 	@if test -f $(REBAR); then $(REBAR) -C $(REBAR_CONFIG) $@ skip_deps=true; else break; fi
-	@rm -f *~ */*~ */*/*~ */*/*/*~ */*/*/*/*~
 	@rm -f erl_crash.dump
+	@rm -f *~ */*~ */*/*~ */*/*/*~ */*/*/*/*~
 
 distclean: clean
 	@if test -f $(REBAR); then $(REBAR) -C $(REBAR_CONFIG) delete-deps; rm -f $(REBAR); else break; fi

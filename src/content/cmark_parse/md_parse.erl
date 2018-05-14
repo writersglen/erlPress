@@ -15,8 +15,7 @@
 
 -module(md_parse).
 
-%% -define(COPY_PATH, "/home/lloyd/ep/src/copy/copy_samples/").
-%% -define(PARSER, "/home/lloyd/ep/src/copy/cmark_parse/cmark ").
+-define(COPY_PATH, "src/copy/copy_samples").
 
 -define(PARSER, parser()).
 
@@ -44,14 +43,20 @@
 -export([test_parse1/0, test_parse2/0, test_parse3/0]).
 
 
+filename(F) ->
+    filename:join([?COPY_PATH, F]).
+
 test_parse1() ->
-   md_parse:parse(?SAMPLE1).
+    FileName = filename(?SAMPLE1),
+    md_parse:parse(FileName).
 
 test_parse2() ->
-   md_parse:parse(?SAMPLE2).
+    FileName = filename(?SAMPLE2),
+    md_parse:parse(FileName).
 
 test_parse3() ->
-   md_parse:parse(?SAMPLE3).
+    FileName = filename(?SAMPLE3),
+    md_parse:parse(FileName).
 
 %% We need to parse out get_copy/1
 
@@ -69,21 +74,5 @@ get_file(FileName) ->
    file:consult(Destination).
 
 parser() ->
-    PrivDir = priv_dir(?MODULE),
+    PrivDir = ep_utils:priv_dir(?MODULE),
     filename:join([PrivDir, "cmark"]).
-
-%%--------------------------------------------------------------------
-%% @doc Returns the module's "priv" directory.
-%% @end
-%% @private
--spec priv_dir(atom()) -> string().
-%%--------------------------------------------------------------------
-priv_dir(Mod) ->
-    case code:priv_dir(Mod) of
-        {error, _} ->
-            EbinDir = filename:dirname(code:which(Mod)),
-            AppPath = filename:dirname(EbinDir),
-            filename:join(AppPath, "priv");
-        Path ->
-            Path
-    end.
