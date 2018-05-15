@@ -6,7 +6,7 @@
 -export([ ceil/1
         , floor/1
         , ceiling/1
-        ]).
+        , priv_dir/1 ]).
 
 %%--------------------------------------------------------------------
 %% @doc Flooring (rounding) floating point number.
@@ -48,6 +48,18 @@ ceiling(X) ->
         _ -> T
     end.
 
-
-
-
+%%--------------------------------------------------------------------
+%% @doc Returns the module's "priv" directory.
+%% @end
+%% @private
+-spec priv_dir(atom()) -> string().
+%%--------------------------------------------------------------------
+priv_dir(Mod) ->
+    case code:priv_dir(Mod) of
+        {error, _} ->
+            EbinDir = filename:dirname(code:which(Mod)),
+            AppPath = filename:dirname(EbinDir),
+            filename:join(AppPath, "priv");
+        Path ->
+            Path
+    end.
