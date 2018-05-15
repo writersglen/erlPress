@@ -1,5 +1,5 @@
 %%==========================================================================
-%% ep_page_no.erl
+%% ep_page_number.erl
 
 %% @copyright  2018 Lloyd R. Prentice
 %% @author     Lloyd R. Prentice
@@ -25,20 +25,20 @@
 %% USE OR OTHER DEALINGS IN THE SOFTWARE.
 %% File:       ep_grid.erl
 %%
-%% File:       ep_page_no.erl
+%% File:       ep_page_number.erl
 %% Description: 
 %%    Position page number 
 %% @end
 %%==========================================================================
 
--module (ep_page_no).
+-module (ep_page_number).
 
--export ([create/3]). 
+-export ([create/2]). 
 
 -export ([position/1, text/1, font/1, font_size/1, format/1]).
--export([update_position/3, update_text/2, update_font/2]).
+-export([update_position/2, update_text/2, update_font/2]).
 -export([update_font_size/2]).
--export([page_no/2]).
+-export([page_number/4]).
 
 % -compile(export_all).
 
@@ -60,12 +60,11 @@
 
 %% @doc Create 
 
--spec create(X    :: integer(),
-             Y    :: integer(),
+-spec create(From :: tuple(),
              Text :: string()) -> map().
 
-create(X, Y, Text) ->
-   #{ position      => {X, Y}
+create(From, Text) ->
+   #{ from         =>  From
     , text          => Text 
     , font          => ?DEFAULT_FONT 
     , font_size     => ?DEFAULT_FONT_SIZE
@@ -80,41 +79,41 @@ create(X, Y, Text) ->
 
 %% @doc Return position 
 
--spec position(PageNoMap :: map()) -> tuple().
+-spec position(PageNumberMap :: map()) -> tuple().
 
-position(PageNoMap) ->
-   maps:get(position, PageNoMap).
+position(PageNumberMap) ->
+   maps:get(position, PageNumberMap).
 
 
 %% @doc Return text 
 
--spec text(PageNoMap :: map()) -> tuple().
+-spec text(PageNumberMap :: map()) -> tuple().
 
-text(PageNoMap) ->
-   maps:get(text, PageNoMap).
+text(PageNumberMap) ->
+   maps:get(text, PageNumberMap).
 
 %% @doc Return font 
 
--spec font(PageNoMap :: map()) -> tuple().
+-spec font(PageNumberMap :: map()) -> tuple().
 
-font(PageNoMap) ->
-   maps:get(font, PageNoMap).
+font(PageNumberMap) ->
+   maps:get(font, PageNumberMap).
 
 
 %% @doc Return font size
 
--spec font_size(PageNoMap :: map()) -> tuple().
+-spec font_size(PageNumberMap :: map()) -> tuple().
 
-font_size(PageNoMap) ->
-   maps:get(font_size, PageNoMap).
+font_size(PageNumberMap) ->
+   maps:get(font_size, PageNumberMap).
 
 
 %% @doc Return format 
 
--spec format(PageNoMap :: map()) -> tuple().
+-spec format(PageNumberMap :: map()) -> tuple().
 
-format(PageNoMap) ->
-   maps:get(format, PageNoMap).
+format(PageNumberMap) ->
+   maps:get(format, PageNumberMap).
 
 
 %% ***********************************************************
@@ -124,39 +123,38 @@ format(PageNoMap) ->
 
 %% @doc Update position 
 
--spec update_position(X :: integer(),
-                      Y :: integer(),
-                      PageNoMap :: map()) -> tuple().
+-spec update_position(From          :: tuple(),
+                      PageNumberMap :: map()) -> tuple().
 
-update_position(X, Y, PageNoMap) ->
-    maps:put(position, {X, Y}, PageNoMap).
+update_position(From, PageNumberMap) ->
+    maps:put(position, From, PageNumberMap).
 
 
 %% @doc Update text 
 
--spec update_text(Text :: string(),
-                  PageNoMap :: map()) -> tuple().
+-spec update_text(Text          :: string(),
+                  PageNumberMap :: map()) -> tuple().
 
-update_text(Text, PageNoMap) ->
-    maps:put(text, Text, PageNoMap).
+update_text(Text, PageNumberMap) ->
+    maps:put(text, Text, PageNumberMap).
 
 
 %% @doc Update font 
 
--spec update_font(Font :: string(),
-                  PageNoMap :: map()) -> tuple().
+-spec update_font(Font          :: string(),
+                  PageNumberMap :: map()) -> tuple().
 
-update_font(Font, PageNoMap) ->
-    maps:put(font, Font, PageNoMap).
+update_font(Font, PageNumberMap) ->
+    maps:put(font, Font, PageNumberMap).
 
 
 %% @doc Update font size
 
 -spec update_font_size(FontSize :: integer(),
-                  PageNoMap :: map()) -> tuple().
+                  PageNumberMap :: map()) -> tuple().
 
-update_font_size(FontSize, PageNoMap) ->
-    maps:put(font_size, FontSize, PageNoMap).
+update_font_size(FontSize, PageNumberMap) ->
+    maps:put(font_size, FontSize, PageNumberMap).
 
 
 %% ***********************************************************
@@ -164,18 +162,18 @@ update_font_size(FontSize, PageNoMap) ->
 %% ***********************************************************
 
 
-page_no(PDF, PageNoMap) ->
-    {X, Y}   = position(PageNoMap),
-    Format   = format(PageNoMap),
-    Y1       = ep_lib:v_flip(Y, Format), 
-%    Position = {X, Y1},
-    Text     = text(PageNoMap),
-    PageNo   = integer_to_list(eg_pdf:get_page_no(PDF)),
-    Text1    = Text ++ PageNo,
+page_number(PDF, PageNumberMap, PageXY, PaperStock) ->
+    From         = position(PageNumberMap),
+    From1        = ep_lib:impose_xy(From, PageXY, PaperStock), 
+    {X, Y}       = From1,
+    PageNumber   = integer_to_list(eg_pdf:get_page_no(PDF)),
+%    Format       = format(PageNoMap),
+    Text         = text(PageNumberMap),
+    Text1        = Text ++ PageNumber,
     eg_pdf:save_state(PDF),
     eg_pdf:begin_text(PDF),
     eg_pdf:set_font(PDF, ?DEFAULT_FONT, ?DEFAULT_FONT_SIZE),
-    eg_pdf:set_text_pos(PDF, X, Y1),
+    eg_pdf:set_text_pos(PDF, X, Y),
     eg_pdf:text(PDF, Text1),
     eg_pdf:end_text(PDF),
     eg_pdf:restore_state(PDF). 

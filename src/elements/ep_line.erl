@@ -33,12 +33,12 @@
 
 -module (ep_line).
 
--export ([create/4]). 
+-export ([create/2]). 
 -export([from/1, to/1, width/1, dash/1, color/1, format/1]).
 -export ([coordinates/1, features/1]). 
--export ([update_from/3, update_to/3]).
+-export ([update_from/2, update_to/2]).
 -export ([update_width/2, update_dash/2, update_color/2, update_format/2]).
--export([line_to_pdf/2]).
+-export([line/4]).
 
 -include("../../include/ep.hrl").
 
@@ -54,14 +54,12 @@
 
 %% @doc Create line map
 
--spec create(FromX :: integer(),
-             ToX   :: integer(),
-             FromY :: integer(),
-             ToY   :: integer()) -> map().
+-spec create(From :: tuple(),
+             To   :: tuple()) -> map().
 
-create(FromX, FromY, ToX, ToY) ->
-   #{ from         => {FromX, FromY}
-    , to           => {ToX, ToY}
+create(From, To) ->
+   #{ from         => From
+    , to           => To
     , width        => ?DEFAULT_WIDTH
     , dash         => ?DEFAULT_DASH
     , color        => ?DEFAULT_COLOR
@@ -151,22 +149,20 @@ features(Line) ->
 
 %% doc Update beinning-of-line coordinates
 
--spec update_from(FromX   :: integer(),
-                  FromY   :: integer(),
+-spec update_from(From    :: tuple(),
                   LineMap :: map()) -> map().
 
-update_from(FromX, FromY, LineMap) ->
-    maps:put(from, {FromX, FromY}, LineMap).
+update_from(From, LineMap) ->
+    maps:put(from, From, LineMap).
 
 
 %% doc Update end-of-line coordinates
 
--spec update_to(ToX   :: integer(),
-                 ToY   :: integer(),
-                 LineMap :: map()) -> map().
+-spec update_to(To       :: tuple(),
+                LineMap  :: map()) -> map().
 
-update_to(ToX, ToY, LineMap) ->
-    maps:put(to, {ToX, ToY}, LineMap).
+update_to(To, LineMap) ->
+    maps:put(to, To, LineMap).
 
 
 %% @doc Update width of line
@@ -212,23 +208,22 @@ update_format(Format, LineMap) ->
 %% Line to pdf  
 %% ***********************************************************
 
-line_to_pdf(PDF, LineMap) ->
+line(PDF, LineMap, PageXY, PaperStock) ->
     From            = maps:get(from, LineMap),
     To              = maps:get(to,   LineMap),
     Width           = maps:get(width, LineMap),
     Dash            = maps:get(dash, LineMap),
     Color           = maps:get(color, LineMap),
     Format          = maps:get(format, LineMap),
-    {FromX, FromY}  = From,
-    FromY1          = ep_lib:v_flip(FromY, Format),
-    {ToX, ToY}      = To,
-    ToY1            = ep_lib:v_flip(ToY, Format),
+    From1           = ep_lib:impose_xy(From, PageXY, Format),
+    {FromX, FromY}  = From1,
+    To1             = ep_lib:impose_xy(To, PageXY,  Format),
     eg_pdf:save_state(PDF),
-    eg_pdf:move_to(PDF, From),
+    eg_pdf:move_to(PDF, From1),
     eg_pdf:set_stroke_color(PDF, Color),
     eg_pdf:set_dash(PDF, Dash),
     eg_pdf:set_line_width(PDF, Width),
-    eg_pdf:line(PDF, {{FromX, FromY1}, {ToX, ToY1}}),
+    eg_pdf:line(PDF, From1, To1),
     eg_pdf:restore_state(PDF),
     PDF.
 

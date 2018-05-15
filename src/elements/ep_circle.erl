@@ -33,14 +33,14 @@
 
 -module (ep_circle).
 
--export ([create/3]). 
+-export ([create/2]). 
 -export ([center/1, radius/1, border_style/1, border_color/1]).
 -export ([fill_color/1, format/1]). 
--export ([dimensions/1, border_specs/1, colors/1]). 
+-export ([border_specs/1, colors/1]). 
 -export ([update_center/3]).
 -export ([update_radius/2, update_border/2, update_border_style/2]).
 -export ([update_border_color/2, update_fill_color/2, update_format/2]).
--export ([circle/2]).
+-export ([circle/4]).
 
 %% -compile(export_all).
 
@@ -64,12 +64,11 @@
 
 %% @doc Create circle map
 
--spec create(CenterX :: integer(),
-             CenterY :: integer(),
+-spec create(Center :: integer(),
              Radius  :: integer()) -> map().
 
-create(CenterX, CenterY, Radius) ->
-   #{ center        => {CenterX, CenterY}
+create(Center, Radius) ->
+   #{ center        => Center
     , radius        => Radius 
     , border        => ?DEFAULT_BORDER
     , border_style  => ?DEFAULT_BORDER_STYLE
@@ -138,16 +137,6 @@ fill_color(CircleMap) ->
 
 format(CircleMap) ->
    maps:get(format, CircleMap).
-
-
-%% @doc Return circle dimensions 
-
--spec dimensions(CircleMap :: map()) -> tuple().
-
-dimensions(CircleMap) ->
-    {X, Y} = center(CircleMap),
-    Radius = radius(CircleMap),
-    {X, Y, Radius}.
 
 
 %% @doc Return border specifications 
@@ -248,10 +237,11 @@ update_format(Format, CircleMap) ->
 %% circle/2  
 %% ***********************************************************
 
-circle(PDF, CircleMap) ->
-    {CenterX, CenterY, Radius} = dimensions(CircleMap),
-    Format = format(CircleMap),
-    CenterY1 = ep_lib:v_flip(CenterY, Format), 
+circle(PDF, CircleMap, PageXY, PaperStock) ->
+    Center  = center(CircleMap),
+    Center1 = ep_lib:impose_xy(Center, PageXY, PaperStock),
+    Radius  = radius(CircleMap),
+    Format  = format(CircleMap),
     {Border, BorderStyle, BorderColor} = border_specs(CircleMap),
     FillColor = fill_color(CircleMap),
     eg_pdf:save_state(PDF),
@@ -259,7 +249,7 @@ circle(PDF, CircleMap) ->
     eg_pdf:set_dash(PDF, BorderStyle),
     eg_pdf:set_stroke_color(PDF, BorderColor),
     eg_pdf:set_fill_color(PDF, FillColor),
-    eg_pdf:circle(PDF, {CenterX, CenterY1}, Radius),
+    eg_pdf:circle(PDF, Center1, Radius),
     eg_pdf:path(PDF, fill_stroke),
     eg_pdf:restore_state(PDF).
 

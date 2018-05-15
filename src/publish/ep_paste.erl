@@ -14,7 +14,7 @@
 
 -module (ep_paste).
 
--export([paste_up/2]).
+-export([paste_up/4]).
 
 -define(FORMAT, letter).
 
@@ -26,16 +26,20 @@
 
 
 %% @doc Paste list of content elements to PDF page
+%%      Example, see ep_tests/galley1/0
 
--spec paste_up(Composition :: list(),
-               PageNo :: integer()) -> atom().
+-spec paste_up(PaperStock  :: atom(),
+               PageSpec    :: tuple(),     % {Format, {PageX, PageY}}
+               PageNumber  :: integer(),
+               Composition :: list()) -> atom().,
 
-paste_up(Composition, PageNo) ->
+paste_up(PaperStock, PageSpec, PageNumber, Composition) ->
+    Format = element(1, PageSpec),
     PDF = eg_pdf:new(),
-    eg_pdf:set_pagesize(PDF, ?FORMAT),
+    eg_pdf:set_pagesize(PDF, Format),
     eg_pdf:set_page(PDF, PageNo),
 
-    paste_to_pdf(PDF, Composition),
+    paste_to_pdf(PDF, PaperStock, PageSpec, PaperStock, Format, Composition),
 
     {Serialised, _PageNo} = eg_pdf:export(PDF),
     OFile = "galley" ++ integer_to_list(PageNo) ++ ".pdf",
@@ -44,28 +48,29 @@ paste_up(Composition, PageNo) ->
     ok.
 
 
-paste_to_pdf(PDF, PageComposition) ->
-   [paste_to_pdf(PDF, CopyBlock, Map) || {CopyBlock, Map} <- PageComposition].  
+paste_to_pdf(PDF, PaperStock, PageSpec, PageComposition) ->
+   [paste_to_pdf(PDF, PaperStock, PageSpec, CopyItem, Map) || 
+                     {CopyItem, Map} <- PageComposition].  
 
 
-paste_to_pdf(PDF, page_header, Map) ->
+paste_to_pdf(PDF, page_header, PaperStock, PageSpec, Map) ->
    ep_page_header:page_header(PDF, Map);
  
-paste_to_pdf(PDF, page_no, Map) ->
+paste_to_pdf(PDF, page_number, PaperStock, Format, Map) ->
    ep_page_no:page_no(PDF, Map);
  
-paste_to_pdf(PDF, line, Map) ->
+paste_to_pdf(PDF, line, PaperStock, Format, Map) ->
    ep_line:line_to_pdf(PDF, Map);
 
-paste_to_pdf(PDF, bezier, Map) ->
+paste_to_pdf(PDF, bezier, PaperStock, Format, Map) ->
    ep_bezier:bezier_to_pdf(PDF, Map);
 
-paste_to_pdf(PDF, circle, Map) ->
+paste_to_pdf(PDF, circle, PaperStock, Format, Map) ->
    ep_circle:circle(PDF, Map);
 
-paste_to_pdf(PDF, ellipse, Map) ->
+paste_to_pdf(PDF, ellipse, PaperStock, Format, Map) ->
    ep_ellipse:ellipse(PDF, Map);
 
-paste_to_pdf(PDF, image, Map) ->
+paste_to_pdf(PDF, image, PaperStock, Format, Map) ->
    ep_image:image_to_pdf(PDF, Map).
  

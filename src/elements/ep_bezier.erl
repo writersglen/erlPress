@@ -39,7 +39,7 @@
 -export ([update_from/2, update_control1/2, update_control2/2, update_to/2]).
 -export ([update_width/2, update_color/2, update_format/2]).
 -export([features/1]).
--export([bezier_to_pdf/2]).
+-export([bezier/4]).
 
 -include("../../include/ep.hrl").
 
@@ -217,30 +217,22 @@ update_format(Format, BezierMap) ->
 %% Bezier to pdf  
 %% ***********************************************************
 
-bezier_to_pdf(PDF, BezierMap) ->
+bezier(PDF, BezierMap, PageXY, PaperStock) ->
     From            = maps:get(from, BezierMap),
     ControlA        = maps:get(control1, BezierMap),
     ControlB        = maps:get(control2, BezierMap),
     To              = maps:get(to,   BezierMap),
     Width           = maps:get(width, BezierMap),
     Color           = maps:get(color, BezierMap),
-    Format          = maps:get(format, BezierMap),
-    {FromX, FromY}  = From,
-    FromY1          = ep_lib:v_flip(FromY, Format),
-    FromA           = {FromX, FromY1},
-    {CXA, CYA}      = ControlA,
-    CYA1            = ep_lib:v_flip(CYA, Format),
-    ControlA1       = {CXA, CYA1},
-    {CXB, CYB}      = ControlB,
-    CYB1            = ep_lib:v_flip(CYB, Format),
-    ControlB1       = {CXB, CYB1}, 
-    {ToX, ToY}      = To,
-    ToY1            = ep_lib:v_flip(ToY, Format),
-    ToA            = {ToX, ToY1},
+%    Format          = maps:get(format, BezierMap),
+    From1           = ep_lib:impose_xy(From, PageXY, PaperStock),
+    ControlA1       = ep_lib:impose_xy(ControlA, PageXY, PaperStock),
+    ControlB1       = ep_lib:impose_xy(ControlB, PageXY, PaperStock),
+    To1             = ep_lib:impose_xy(To, PageXY, PaperStock),
     eg_pdf:save_state(PDF),
     eg_pdf:move_to(PDF, From),
     eg_pdf:set_line_width(PDF, Width),
-    eg_pdf:bezier(PDF, FromA, ControlA1, ControlB1, ToA),
+    eg_pdf:bezier(PDF, From1, ControlA1, ControlB1, To1),
     eg_pdf:set_stroke_color(PDF, Color),
     eg_pdf:path(PDF, stroke),
     eg_pdf:restore_state(PDF),

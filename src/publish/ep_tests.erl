@@ -14,7 +14,10 @@
 
 -module (ep_tests).
 
--export([galley1/0]).
+-export([galley1/1]).
+
+-define(PAPERSTOCK, letter).
+-define(FORMAT, letter).
 
 
 %% **********************************************************
@@ -23,61 +26,63 @@
 
 
 
-galley1() -> 
+galley1(PageNumber) -> 
+   PaperStock = ?PAPERSTOCK,
+   Format     = ?FORMAT,
    PageElements = page_elements(),
-   ep_paste:paste_up(PageElements, 1).
+   ep_paste:paste_up(PaperStock, Format, PageNumber, PageElements).
 
 
 page_elements() ->
-   [{page_header, page_header_map()},
-    {page_no,     page_no_map()},
-    {line,        line_map()},
-    {line,        line_map1()},
-    {line,        line_map2()},
-    {line,        line_map3()},
-    {circle,      circle_map()},
-    {circle,      circle_map1()},
-    {ellipse,     ellipse_map()},
-    {ellipse,     ellipse_map1()},
-    {bezier,      bezier_map()},
-    {image,       image_map()},
-    {image,       image_map1()}
+   [{page_header,  page_header_map()},
+    {page_number,  page_number_map()},
+    {line,         line_map()},
+    {line,         line_map1()},
+    {line,         line_map2()},
+    {line,         line_map3()},
+    {circle,       circle_map()},
+    {circle,       circle_map1()},
+    {ellipse,      ellipse_map()},
+    {ellipse,      ellipse_map1()},
+    {bezier,       bezier_map()},
+    {image,        image_map()},
+    {image,        image_map1()}
    ].
 
 
 page_header_map() ->
-  ep_page_header:create(72, 72, "Test galley 1").
+  ep_page_header:create({72, 72}, "Test galley 1").
 
-page_no_map() ->
-  ep_page_no:create(500, 72, "page "). 
+page_number_map() ->
+  ep_page_number:create({500, 72}, "page "). 
 
 line_map() ->
-  ep_line:create(100, 100, 200, 200).
+  ep_line:create({100, 100}, {200, 200}).
 
 line_map1() ->
-  Map = ep_line:create(110, 100, 210, 200),
+  Map = ep_line:create({110, 100}, {210, 200}),
   ep_line:update_color(red, Map).
 
 line_map2() ->
-  Map = ep_line:create(120, 100, 220, 200),
+  Map = ep_line:create({120, 100}, {220, 200}),
   ep_line:update_color(green, Map).
 
 line_map3() ->
-  Map = ep_line:create(130, 100, 230, 200),
+  Map = ep_line:create({130, 100}, {230, 200}),
   ep_line:update_color(blue, Map).
 
 circle_map() ->
-  ep_circle:create(300, 150, 50).
+  ep_circle:create({300, 150}, 50).
  
 circle_map1() -> 
-  Map = ep_circle:create(300, 250, 50),
+  Map = ep_circle:create({300, 250}, 50),
   ep_circle:update_fill_color(yellow, Map).
  
 ellipse_map() -> 
-  ep_ellipse:create(450, 250, 100, 50).
+  ep_ellipse:create({450, 250}, {100, 50}).
  
 ellipse_map1() -> 
-  Map = ep_ellipse:create(450, 150, 100, 50),
+  Map = ep_ellipse:create({450, 150}, {100, 50}),
   ep_ellipse:update_fill_color(yellow, Map).
  
 bezier_map() -> 

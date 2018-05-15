@@ -33,12 +33,12 @@
 
 -module (ep_page_header).
 
--export ([create/3]). 
+-export ([create/2]). 
 
 -export ([position/1, text/1, font/1, font_size/1, format/1]).
--export([update_position/3, update_text/2, update_font/2]).
+-export([update_position/2, update_text/2, update_font/2]).
 -export([update_font_size/2]).
--export([page_header/2]).
+-export([page_header/4]).
 
 % -compile(export_all).
 
@@ -60,12 +60,11 @@
 
 %% @doc Create 
 
--spec create(X    :: integer(),
-             Y    :: integer(),
+-spec create(From    :: tuple(),
              Text :: string()) -> map().
 
-create(X, Y, Text) ->
-   #{ position      => {X, Y}
+create(From, Text) ->
+   #{ from          => From 
     , text          => Text 
     , font          => ?DEFAULT_FONT 
     , font_size     => ?DEFAULT_FONT_SIZE
@@ -80,41 +79,41 @@ create(X, Y, Text) ->
 
 %% @doc Return position 
 
--spec position(PageNoMap :: map()) -> tuple().
+-spec position(PageHeaderMap :: map()) -> tuple().
 
-position(PageNoMap) ->
-   maps:get(position, PageNoMap).
+position(PageHeaderMap) ->
+   maps:get(position, PageHeaderMap).
 
 
 %% @doc Return text 
 
--spec text(PageNoMap :: map()) -> tuple().
+-spec text(PageHeaderMap :: map()) -> tuple().
 
-text(PageNoMap) ->
-   maps:get(text, PageNoMap).
+text(PageHeaderMap) ->
+   maps:get(text, PageHeaderMap).
 
 %% @doc Return font 
 
--spec font(PageNoMap :: map()) -> tuple().
+-spec font(PageHeaderMap :: map()) -> tuple().
 
-font(PageNoMap) ->
-   maps:get(font, PageNoMap).
+font(PageHeaderMap) ->
+   maps:get(font, PageHeaderMap).
 
 
 %% @doc Return font size
 
--spec font_size(PageNoMap :: map()) -> tuple().
+-spec font_size(PageHeaderMap :: map()) -> tuple().
 
-font_size(PageNoMap) ->
-   maps:get(font_size, PageNoMap).
+font_size(PageHeaderMap) ->
+   maps:get(font_size, PageHeaderMap).
 
 
 %% @doc Return format 
 
--spec format(PageNoMap :: map()) -> tuple().
+-spec format(PageHeaderMap :: map()) -> tuple().
 
-format(PageNoMap) ->
-   maps:get(format, PageNoMap).
+format(PageHeaderMap) ->
+   maps:get(format, PageHeaderMap).
 
 
 %% ***********************************************************
@@ -124,12 +123,11 @@ format(PageNoMap) ->
 
 %% @doc Update position 
 
--spec update_position(X :: integer(),
-                      Y :: integer(),
-                      PageNoMap :: map()) -> tuple().
+-spec update_position(From :: tuple(),
+                      PageHeaderMap :: map()) -> tuple().
 
-update_position(X, Y, PageNoMap) ->
-    maps:put(position, {X, Y}, PageNoMap).
+update_position(From, PageHeaderMap) ->
+    maps:put(position, From, PageHeaderMap).
 
 
 %% @doc Update text 
@@ -137,26 +135,26 @@ update_position(X, Y, PageNoMap) ->
 -spec update_text(Text :: string(),
                   PageNoMap :: map()) -> tuple().
 
-update_text(Text, PageNoMap) ->
-    maps:put(text, Text, PageNoMap).
+update_text(Text, PageHeaderMap) ->
+    maps:put(text, Text, PageHeaderMap).
 
 
 %% @doc Update font 
 
 -spec update_font(Font :: string(),
-                  PageNoMap :: map()) -> tuple().
+                  PagePHeaderMap :: map()) -> tuple().
 
-update_font(Font, PageNoMap) ->
-    maps:put(font, Font, PageNoMap).
+update_font(Font, PageHeaderMap) ->
+    maps:put(font, Font, PageHeaderMap).
 
 
 %% @doc Update font size
 
 -spec update_font_size(FontSize :: integer(),
-                  PageNoMap :: map()) -> tuple().
+                  PageHeaderMap :: map()) -> tuple().
 
-update_font_size(FontSize, PageNoMap) ->
-    maps:put(font_size, FontSize, PageNoMap).
+update_font_size(FontSize, PageHeaderMap) ->
+    maps:put(font_size, FontSize, PageHeaderMap).
 
 
 %% ***********************************************************
@@ -164,15 +162,18 @@ update_font_size(FontSize, PageNoMap) ->
 %% ***********************************************************
 
 
-page_header(PDF, PageNoMap) ->
-    {X, Y}   = position(PageNoMap),
-    Format   = format(PageNoMap),
-    Y1       = ep_lib:v_flip(Y, Format),
-    Text     = text(PageNoMap),
+page_header(PDF, PageHeaderMap, PageXY, PaperStock) ->
+    From     = position(PageHeaderMap),
+%    Format   = format(PageHeaderMap),
+    From1    = ep_lib:impose_xy(From, 
+                                PageXY,
+                                PaperStock),
+    {X, Y}   = From1,
+    Text     = text(PageHeaderMap),
     eg_pdf:save_state(PDF),
     eg_pdf:begin_text(PDF),
     eg_pdf:set_font(PDF, ?DEFAULT_FONT, ?DEFAULT_FONT_SIZE),
-    eg_pdf:set_text_pos(PDF, X, Y1),
+    eg_pdf:set_text_pos(PDF, X, Y),
     eg_pdf:text(PDF, Text),
     eg_pdf:end_text(PDF),
     eg_pdf:restore_state(PDF). 

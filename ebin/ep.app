@@ -22,9 +22,10 @@
                         ep_interpret,ep_job,ep_layout,ep_layout_prims,
                         ep_layout_test,ep_lib,ep_line,ep_line_break,
                         ep_orphans,ep_page,ep_page_grids,ep_page_header,
-                        ep_page_no,ep_panel,ep_paper,ep_paper_stock,ep_parse,
-                        ep_paste,ep_paste_copy,ep_print,ep_print_media,
-                        ep_project,ep_rectangle,ep_richText2pdf,ep_show_grid,
-                        ep_tag_elements,ep_test_box,ep_test_copyfit,
-                        ep_test_elements,ep_test_galleys,ep_tests,ep_text,
-                        ep_typespec,ep_utils,md_parse,md_parse1,md_yami]}]}.
+                        ep_page_no,ep_page_number,ep_panel,ep_paper,
+                        ep_paper_stock,ep_parse,ep_paste,ep_paste_copy,
+                        ep_print,ep_print_media,ep_project,ep_rectangle,
+                        ep_richText2pdf,ep_show_grid,ep_tag_elements,
+                        ep_test_box,ep_test_copyfit,ep_test_elements,
+                        ep_test_galleys,ep_tests,ep_text,ep_typespec,ep_utils,
+                        md_parse,md_parse1,md_yami]}]}.

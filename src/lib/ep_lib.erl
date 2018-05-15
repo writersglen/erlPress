@@ -13,7 +13,7 @@
 -export ([list_userguide_images/0, get_userguide_image/1]).
 -export ([list_userguide_text/0, get_userguide_text/1]).
 -export([today/0, months/0]).
--export([v_flip/2, within/3]).
+-export([impose_xy/3, v_flip/2, within/3]).
 
 %%% *********************************************************      
 %%% Create page id
@@ -125,11 +125,30 @@ months() ->
 %%      a panel or page grid. 
 %% ****************************************************************
 
+
+%% @doc Given placement of page on paper stock, translate coordinate 
+%%      of point
+
+-spec impose_xy(XY         :: tuple(), 
+                PageXY     :: tuple(),
+                PaperStock :: atom()) -> integer().
+
+impose_xy(XY, PageXY, PaperStock) ->
+    {X, Y}         = XY,
+    {PageX, PageY} = PageXY, 
+    X1             = X + PageX,
+    Y1             = v_flip(PageY, PaperStock) - Y,
+    {X1, Y1}. 
+
+
 -spec v_flip(Y :: integer(), PaperStock ::  atom()) -> integer().
 
 v_flip(Y, PaperStock) ->
    StockHeight = ep_paper:stock_height(PaperStock),
    StockHeight - Y.
+
+
+
 
 
 
