@@ -14,7 +14,7 @@ The erlPress print-media page layout and typesetting system modifies and extends
 
 https://github.com/hwatkins/erlguten
 
-As of Version .01, ErlPress is a work-in-progress with many deficiencies and rough-edges. You might consider it a PDF generation test bed. The MIT license encourages evolution toward world-class functionality and performance including:
+ErlPress is a work-in-progress with many deficiencies and rough-edges. You might consider it a PDF generation test bed. The MIT license encourages evolution toward world-class functionality and performance including:
 
 * print project management
 * page design and layout
@@ -74,10 +74,6 @@ ep_page_grids.erl
 3rd Party Libs
 ==============
 
-. CMARK
-
-CommonMark parsing and rendering library and program in C
-
-Linux  : https://github.com/commonmark/cmark
-Windows: https://github.com/commonmark/cmark
-macOS  : brew install cmark
+. CMARK: CommonMark parsing and rendering library and program in C
+  to convert cmark_nodes to ERLANG terms strings:
+  https://github.com/skaee/cmark

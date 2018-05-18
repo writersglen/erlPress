@@ -38,7 +38,7 @@
 -export ([coordinates/1, features/1]). 
 -export ([update_from/2, update_to/2]).
 -export ([update_width/2, update_dash/2, update_color/2, update_format/2]).
--export([line/4]).
+-export([line/3]).
 
 -include("../../include/ep.hrl").
 
@@ -208,16 +208,16 @@ update_format(Format, LineMap) ->
 %% Line to pdf  
 %% ***********************************************************
 
-line(PDF, LineMap, PageXY, PaperStock) ->
+line(PDF, PageMap, LineMap) ->
+    PaperStock      = maps:get(paper_stock, PageMap),
+    [PageXY]        = maps:get(page_xy, PageMap),
     From            = maps:get(from, LineMap),
     To              = maps:get(to,   LineMap),
     Width           = maps:get(width, LineMap),
     Dash            = maps:get(dash, LineMap),
     Color           = maps:get(color, LineMap),
-    Format          = maps:get(format, LineMap),
-    From1           = ep_lib:impose_xy(From, PageXY, Format),
-    {FromX, FromY}  = From1,
-    To1             = ep_lib:impose_xy(To, PageXY,  Format),
+    From1           = ep_lib:impose_xy(From, PageXY, PaperStock),
+    To1             = ep_lib:impose_xy(To, PageXY,  PaperStock),
     eg_pdf:save_state(PDF),
     eg_pdf:move_to(PDF, From1),
     eg_pdf:set_stroke_color(PDF, Color),

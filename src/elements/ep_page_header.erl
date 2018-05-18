@@ -38,7 +38,7 @@
 -export ([position/1, text/1, font/1, font_size/1, format/1]).
 -export([update_position/2, update_text/2, update_font/2]).
 -export([update_font_size/2]).
--export([page_header/4]).
+-export([page_header/3]).
 
 % -compile(export_all).
 
@@ -162,14 +162,16 @@ update_font_size(FontSize, PageHeaderMap) ->
 %% ***********************************************************
 
 
-page_header(PDF, PageHeaderMap, PageXY, PaperStock) ->
-    From     = position(PageHeaderMap),
-%    Format   = format(PageHeaderMap),
-    From1    = ep_lib:impose_xy(From, 
-                                PageXY,
-                                PaperStock),
-    {X, Y}   = From1,
-    Text     = text(PageHeaderMap),
+page_header(PDF, PageMap, PageHeaderMap) ->
+    PaperStock = maps:get(paper_stock, PageMap),
+    [PageXY]   = maps:get(page_xy, PageMap), 
+    io:format("PageXY: ~p~n", [PageXY]),
+    From       = maps:get(from, PageHeaderMap),
+    From1      = ep_lib:impose_xy(From, 
+                                  PageXY,
+                                  PaperStock),
+    {X, Y}     = From1,
+    Text       = text(PageHeaderMap),
     eg_pdf:save_state(PDF),
     eg_pdf:begin_text(PDF),
     eg_pdf:set_font(PDF, ?DEFAULT_FONT, ?DEFAULT_FONT_SIZE),

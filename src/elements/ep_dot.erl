@@ -1,8 +1,8 @@
 %%==========================================================================
 %% ep_dot.erl
 
-%% {c) 2017 Lloyd R. Prentice
-%% Author:     Lloyd R. Prentice
+%% @copyright  2018 Lloyd R. Prentice
+%% @author     Lloyd R. Prentice
 %%
 %% License: 
 %% Permission is hereby granted, free of charge, to any person obtaining a
@@ -28,107 +28,58 @@
 %% File:       ep_dot.erl
 %% Description: 
 %%    Layout primitives 
+%% @end
 %%==========================================================================
 
 -module (ep_dot).
 
--export ([new/3, dot/2]). 
--export ([dot_dimensions/1, dot_color/1]). 
--export ([id/1, x/1, y/1, radius/1, fill_color/1]).
--export ([update_id/2, update_x/2, update_y/2]).
--export ([update_radius/2, update_fill_color/2]).
+-export ([create/1, dot/3]).
 
 % -compile(export_all).
+
+-define(DEFAULT_RADIUS, 5).
 
 -include("../../include/ep.hrl").
 
 %% ***********************************************************
-%% new/3 
+%% create 
 %% ***********************************************************
 
 %% Colors: white, silver, gray, black, maroon, red, fuschia,
 %%         purple, lime, green, olive, yellow, navy, blue, teal, aqua 
 
-new(X, Y, Radius) ->
-   New = [{id,            {0, 0, undefined}},  % {Page, Panel, Alias}
-          {x,             X},
-          {y,             Y},
-          {radius,        Radius},
-          {outline,       1},
-          {outline_type,  solid},
-          {outline_color, black},
-          {fill_color,    black}
+create(Center) ->
+   New = [{center,        Center},
+          {radius,        ?DEFAULT_RADIUS},
+          {color,         black},
+          {border,        1},
+          {border_type,   solid},
+          {border_color,  black}
          ],
     maps:from_list(New).
 
-%% ***********************************************************
-%% dot/2  
-%% ***********************************************************
-
-dot(PDF, Dot) ->
-    {X, Y, Radius} = dot_dimensions(Dot),
-    DotColor = dot_color(Dot),
-    eg_pdf:set_stroke_color(PDF, DotColor),
-    eg_pdf:set_fill_color(PDF, DotColor),
-    eg_pdf:circle(PDF, {X, Y}, Radius),
-    eg_pdf:path(PDF, fill_stroke).
 
 
 %% ***********************************************************
-%% dot_dimensions/1, dot_color/1  
+%% dot/3  
 %% ***********************************************************
 
-dot_dimensions(Dot) ->
-    X      = x(Dot),
-    Y      = y(Dot),
-    Radius = radius(Dot),
-    {X, Y, Radius}.
-
-dot_color(Dot) ->
-    fill_color(Dot).
-
-
-%% ***********************************************************
-%% Get dot parameters 
-%% ***********************************************************
-
-id(Dot) ->
-    maps:get(id, Dot).
-
-x(Dot) ->
-    maps:get(x, Dot).
-
-y(Dot) ->
-    maps:get(y, Dot).
-
-radius(Dot) ->
-    maps:get(radius, Dot).
-
-fill_color(Dot) ->
-    maps:get(fill_color, Dot).
-
-%% ***********************************************************
-%% Update dot parameters 
-%% ***********************************************************
-
-update_id(ID, Dot) ->
-    maps:put(id, ID, Dot).
-
-update_x(X, Dot) ->
-    maps:put(x, X, Dot).
-
-update_y(Y, Dot) ->
-    maps:put(y, Y, Dot).
-
-update_radius(Radius, Dot) ->
-    maps:put(radius, Radius, Dot).
-
-update_fill_color(DotColor, Dot) ->
-    maps:put(outline_color, DotColor, Dot),
-    maps:put(fill_color, DotColor, Dot).
-
-
-
-   
-
+dot(PDF, PageMap,DotMap) ->
+    PaperStock  = maps:get(paper_stock, PageMap),
+    [PageXY]    = maps:get(page_xy, PageMap),
+    Center      = maps:get(center, DotMap),
+    Color       = maps:get(color, DotMap),
+    Radius      = maps:get(radius, DotMap),
+    Border      = maps:get(border, DotMap),
+    BorderType  = maps:get(border_type, DotMap),
+    BorderColor = maps:get(border_color, DotMap),
+    Center1     = ep_lib:impose_xy(Center, PageXY, PaperStock), 
+    eg_pdf:save_state(PDF),
+    eg_pdf:set_line_width(PDF, Border),
+    eg_pdf:set_dash(PDF, BorderType),
+    eg_pdf:set_stroke_color(PDF, BorderColor),
+    eg_pdf:set_fill_color(PDF, Color),
+    eg_pdf:circle(PDF, Center1, Radius),
+    eg_pdf:path(PDF, fill_stroke),
+    eg_pdf:restore_state(PDF).
 

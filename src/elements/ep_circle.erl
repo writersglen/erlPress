@@ -40,7 +40,7 @@
 -export ([update_center/3]).
 -export ([update_radius/2, update_border/2, update_border_style/2]).
 -export ([update_border_color/2, update_fill_color/2, update_format/2]).
--export ([circle/4]).
+-export ([circle/3]).
 
 %% -compile(export_all).
 
@@ -237,11 +237,12 @@ update_format(Format, CircleMap) ->
 %% circle/2  
 %% ***********************************************************
 
-circle(PDF, CircleMap, PageXY, PaperStock) ->
-    Center  = center(CircleMap),
-    Center1 = ep_lib:impose_xy(Center, PageXY, PaperStock),
-    Radius  = radius(CircleMap),
-    Format  = format(CircleMap),
+circle(PDF, PageMap, CircleMap) ->
+    PaperStock = maps:get(paper_stock, PageMap),
+    [PageXY]   = maps:get(page_xy, PageMap),
+    Center     = maps:get(center, CircleMap),
+    Radius     = maps:get(radius, CircleMap),
+    Center1    = ep_lib:impose_xy(Center, PageXY, PaperStock),
     {Border, BorderStyle, BorderColor} = border_specs(CircleMap),
     FillColor = fill_color(CircleMap),
     eg_pdf:save_state(PDF),

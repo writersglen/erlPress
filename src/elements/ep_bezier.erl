@@ -39,7 +39,7 @@
 -export ([update_from/2, update_control1/2, update_control2/2, update_to/2]).
 -export ([update_width/2, update_color/2, update_format/2]).
 -export([features/1]).
--export([bezier/4]).
+-export([bezier/3]).
 
 -include("../../include/ep.hrl").
 
@@ -62,8 +62,8 @@
 
 create(Pt1, Pt2, Pt3, Pt4) ->
    #{ from         => Pt1 
-    , control1     => Pt2 
-    , control2     => Pt3 
+    , pt2          => Pt2 
+    , pt3          => Pt3 
     , to           => Pt4   
     , width        => ?DEFAULT_WIDTH
     , color        => ?DEFAULT_COLOR
@@ -217,22 +217,23 @@ update_format(Format, BezierMap) ->
 %% Bezier to pdf  
 %% ***********************************************************
 
-bezier(PDF, BezierMap, PageXY, PaperStock) ->
+bezier(PDF, PageMap, BezierMap) ->
+    PaperStock      = maps:get(paper_stock, PageMap),
+    [PageXY]        = maps:get(page_xy, PageMap),
     From            = maps:get(from, BezierMap),
-    ControlA        = maps:get(control1, BezierMap),
-    ControlB        = maps:get(control2, BezierMap),
+    Pt2             = maps:get(pt2, BezierMap),
+    Pt3             = maps:get(pt3, BezierMap),
     To              = maps:get(to,   BezierMap),
     Width           = maps:get(width, BezierMap),
     Color           = maps:get(color, BezierMap),
-%    Format          = maps:get(format, BezierMap),
-    From1           = ep_lib:impose_xy(From, PageXY, PaperStock),
-    ControlA1       = ep_lib:impose_xy(ControlA, PageXY, PaperStock),
-    ControlB1       = ep_lib:impose_xy(ControlB, PageXY, PaperStock),
-    To1             = ep_lib:impose_xy(To, PageXY, PaperStock),
+    FromA           = ep_lib:impose_xy(From, PageXY, PaperStock),
+    Pt2A            = ep_lib:impose_xy(Pt2, PageXY, PaperStock),
+    Pt3A            = ep_lib:impose_xy(Pt3, PageXY, PaperStock),
+    ToA             = ep_lib:impose_xy(To, PageXY, PaperStock),
     eg_pdf:save_state(PDF),
     eg_pdf:move_to(PDF, From),
     eg_pdf:set_line_width(PDF, Width),
-    eg_pdf:bezier(PDF, From1, ControlA1, ControlB1, To1),
+    eg_pdf:bezier(PDF, FromA, Pt2A, Pt3A, ToA),
     eg_pdf:set_stroke_color(PDF, Color),
     eg_pdf:path(PDF, stroke),
     eg_pdf:restore_state(PDF),

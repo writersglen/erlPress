@@ -31,10 +31,11 @@
 %% @end
 %%==========================================================================
 
+
 -module (ep_ellipse).
 
 -export ([create/2]).
--export ([center/1, radius/1, border_style/1, border_color/1]). 
+-export ([center/1, axes/1, border_style/1, border_color/1]). 
 -export ([fill_color/1, format/1]).
 -export ([ellipse_specs/1, border_specs/1, colors/1]). 
 -export ([update_center/3]).
@@ -65,12 +66,12 @@
 %% @doc Create ellipse map
 
 -spec create(Center   :: tuple(),
-             Radius   :: tuple()) -> map().
+             Axes     :: tuple()) -> map().
 
 
-create(Center, Radius) ->
+create(Center, Axes) ->
    #{ center         => Center
-    , radius         => Radius
+    , axes           => Axes 
     , border         => ?DEFAULT_BORDER
     , border_style   => ?DEFAULT_BORDER_STYLE
     , border_color   => ?DEFAULT_BORDER_COLOR 
@@ -92,12 +93,12 @@ center(EllipseMap) ->
    maps:get(center, EllipseMap).
 
 
-%% @doc Return radius 
+%% @doc Return axes 
 
--spec radius(EllipseMap :: map()) -> tuple().
+-spec axes(EllipseMap :: map()) -> tuple().
 
-radius(EllipseMap) ->
-   maps:get(radius, EllipseMap).
+axes(EllipseMap) ->
+   maps:get(axes, EllipseMap).
 
 %% @doc Return border  
 
@@ -147,8 +148,8 @@ format(EllipseMap) ->
 
 ellipse_specs(EllipseMap) ->
     {CenterX, CenterY} = center(EllipseMap),
-    {XRadius, YRadius} = radius(EllipseMap),
-    {CenterX, CenterY, XRadius, YRadius}.
+    {XAxis, YAxis} = axes(EllipseMap),
+    {CenterX, CenterY, XAxis, YAxis}.
 
 
 %% @doc Return border specifications 
@@ -191,12 +192,12 @@ update_center(CenterX, CenterY, EllipseMap) ->
 
 %% @doc Update dimensions 
 
--spec update_dimensions(XRadius    :: integer(),
-                        YRadius    :: integer(),
+-spec update_dimensions(XAxis      :: integer(),
+                        YAxis      :: integer(),
                         EllipseMap :: map()) -> tuple().
 
-update_dimensions(XRadius, YRadius, EllipseMap) ->
-    maps:put(radius, {XRadius, YRadius}, EllipseMap).
+update_dimensions(XAxis, YAxis, EllipseMap) ->
+    maps:put(axes, {XAxis, YAxis}, EllipseMap).
 
 
 %% @doc Update border 
@@ -245,25 +246,27 @@ update_format(Format, EllipseMap) ->
 
 
 %% ***********************************************************
-%% circle/2, solid_circle/2  
+%% ellipse/3  
 %% ***********************************************************
 
-ellipse(PDF, EllipseMap, PageXY) ->
-    Center                   = center(EllipseMap),
-    Radius                   = radius(EllipseMap),
-    {BorderColor, FillColor} = colors(EllipseMap),    
-    Format                   = format(EllipseMap),
+ellipse(PDF, PageMap, EllipseMap) ->
+    PaperStock               = maps:get(paper_stock, PageMap),
+    [PageXY]                 = maps:get(page_xy, PageMap),
+    Center                   = maps:get(center, EllipseMap),
+    Axes                     = maps:get(axes, EllipseMap),
+    Border                   = maps:get(border, EllipseMap),
+    BorderColor              = maps:get(border_color, EllipseMap),
+    BorderStyle              = maps:get(border_style, EllipseMap),
+    FillColor                = maps:get(fill_color, EllipseMap),
     Center1                  = ep_lib:impose_xy(Center, 
                                                 PageXY, 
-                                                Format),
-    {Border, BorderStyle, BorderColor} = border_specs(EllipseMap),
-    FillColor                = fill_color(EllipseMap),
+                                                PaperStock),
     eg_pdf:save_state(PDF),
     eg_pdf:set_line_width(PDF, Border),
     eg_pdf:set_dash(PDF, BorderStyle),
     eg_pdf:set_stroke_color(PDF, BorderColor),
     eg_pdf:set_fill_color(PDF, FillColor),
-    eg_pdf:ellipse(PDF, Center1, Radius),
+    eg_pdf:ellipse(PDF, Center1, Axes),
     eg_pdf:path(PDF, fill_stroke),
     eg_pdf:restore_state(PDF).
 

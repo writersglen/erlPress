@@ -38,7 +38,7 @@
 -export ([position/1, text/1, font/1, font_size/1, format/1]).
 -export([update_position/2, update_text/2, update_font/2]).
 -export([update_font_size/2]).
--export([page_number/4]).
+-export([page_number/3]).
 
 % -compile(export_all).
 
@@ -162,14 +162,17 @@ update_font_size(FontSize, PageNumberMap) ->
 %% ***********************************************************
 
 
-page_number(PDF, PageNumberMap, PageXY, PaperStock) ->
-    From         = position(PageNumberMap),
+
+page_number(PDF, PageMap, PageNumberMap) ->
+    PaperStock   = maps:get(paper_stock, PageMap),
+    PageNumber   = maps:get(page_number, PageMap),
+    PageNumber1  = integer_to_list(PageNumber),
+    [PageXY]     = maps:get(page_xy, PageMap),
+    From         = maps:get(from, PageNumberMap),
+    Text         = maps:get(text, PageNumberMap),
     From1        = ep_lib:impose_xy(From, PageXY, PaperStock), 
+    Text1        = Text ++ PageNumber1,
     {X, Y}       = From1,
-    PageNumber   = integer_to_list(eg_pdf:get_page_no(PDF)),
-%    Format       = format(PageNoMap),
-    Text         = text(PageNumberMap),
-    Text1        = Text ++ PageNumber,
     eg_pdf:save_state(PDF),
     eg_pdf:begin_text(PDF),
     eg_pdf:set_font(PDF, ?DEFAULT_FONT, ?DEFAULT_FONT_SIZE),

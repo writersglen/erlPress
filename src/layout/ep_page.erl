@@ -1,15 +1,19 @@
 %%% *********************************************************
-%%% {c) 2018    Lloyd R. Prentice
-%%% Author:     Lloyd R. Prentice
+%%% ep_page.erl
+%%%
+%%% @copyright   2018 Lloyd R. Prentice
+%%% @author:     Lloyd R. Prentice
+%%% @doc
 %%% License: 
 %%% File:       ep_page.erl
 %%% Description: 
 %%%   Page functions 
+%%% @doc
 %%% *********************************************************      
 
 -module (ep_page).
 
--export([create_page/2]).
+-export([create/3]).
 -export([project_id/1, format/1, page_no/1, section/1, page_grid/1]).
 -export([page_inches/1, page_picas/1, page_points/1]).
 -export([put_format/2, put_page_no/2, inc_page_no/1, reset_page_no/1]).
@@ -21,12 +25,20 @@
 %%% Create page nap
 %%% *********************************************************      
 
-create_page(Project, Format) ->
-   #{ project_id    => ep_project:project_id(Project)
-    , format        => Format
-    , page_no       => undefined 
+%% NOTE: ep-impose:place_pages/3 returns a list to cover
+%%       cases in which more than one page fits on paper stock
+
+create(ProjectMap, PageNumber, OFile) ->
+   PaperStock = maps:get(paper_stock, ProjectMap),
+   PageFormat = maps:get(page_format, ProjectMap),
+   PageXY   = ep_impose:place_pages(PaperStock, PageFormat, 1),
+   #{ paper_stock   => PaperStock 
+    , page_format   => PageFormat  
+    , page_xy       => PageXY 
+    , page_number   => PageNumber 
     , section       => undefined
     , page_grid     => undefined
+    , output_file   => OFile
    }.
 
 
