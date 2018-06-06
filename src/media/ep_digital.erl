@@ -1,12 +1,16 @@
+%%% ********************************************************* 
+%%% ep_digital.erl
 
-%%% ********************************************************* 
-%%% {c) 2016Lloyd R. Prentice
-%%% Author:     Lloyd R. Prentice
-%%% License: 
-%%% File:       ep_papererl
-%%% Description: 
-%%%   Return dimensions of standard print formats 
-%%% ********************************************************* 
+%%% @author     Lloyd R. Prentice
+%%% @copyright  2018 Lloyd R. Prentice
+%%% @version   .01
+%%% @doc
+%%%   License:
+%%%   File:         ep_digital.erl
+%%%   Description:  Digital media primitives 
+%%% @end
+
+%%% ==========================================================================
 
 
 -module (ep_digital).

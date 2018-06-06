@@ -1,12 +1,17 @@
+%%% ==========================================================================
+%%% ep_paper_stock.erl
 
-%%%a ********************************************************* 
-%%% {c) 2018    Lloyd R. Prentice
-%%% Author:     Lloyd R. Prentice
-%%% License: 
-%%% File:       ep_paper_stock.erl
-%%% Description: 
-%%%   Standard paper stock dimensions
-%%% ********************************************************* 
+%%% @author     Lloyd R. Prentice
+%%% @copyright  2018 Lloyd R. Prentice
+%%% @version   .01
+%%% @doc
+%%%   License:
+%%%   File:         ep_paper_stock.erl
+%%%   Description:  Standard paper stock dimensions
+%%% @end
+
+%%% ==========================================================================
+
 
 -module (ep_paper_stock).
 
@@ -45,7 +50,7 @@ stock_size_inches(Stock) ->
 
 stock_size_picas(Stock) ->
    Dimensions = stock_size_inches(Stock),
-   ep_print_media:to_picas(Dimensions).
+   ep_metrics:to_picas(Dimensions).
 
 %% @doc Return paper stock dimensions in points
 
@@ -53,7 +58,7 @@ stock_size_picas(Stock) ->
 
 stock_size_points(Stock) ->
    Dimensions = stock_size_inches(Stock),
-   ep_print_media:to_points(Dimensions).
+   ep_metrics:to_points(Dimensions).
 
 %% @doc Return paper stock width in points
 

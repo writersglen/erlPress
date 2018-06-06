@@ -1,0 +1,140 @@
+
+Articles and Beads
+
+Assume article is tagged as XML:
+
+Assume beads are a list of pages and panels where a panel is an
+indexed and named box
+
+An article can have heads, paragraphs, subheads, lists, code, images, etc.
+We call these elements "content items."
+
+1. For each page, extract the list of panels assigned to the page
+
+2. For each content item in the article, check to see if it fits
+   in the first panel in the panel list for that page
+
+3. If fits, paste the content item into the panel
+   If not, check to see if content item is breakable
+      If breakable, break and paste partial item into the panel
+         paste partial item into panel; drop panel from list
+      If not, drop panel from list and recurse
+
+
+
+ 
+
+
+
+
+XML ->  Norm = eg_xml2richText:normalise_xml(Xml, TagMap),
+        {p, _, RichText} = Norm,
+        Widths = [Len-20|lists:duplicate(NLines-1, Len)],
+        {Lines, _, _} = eg_line_break:break_richText(RichText, { Justification, Widths}) 
+
+Give Lines and NLines we can extract lines and assign them to beads.
+
+
+
+
+
+
+Norm
+
+     {p,[],
+        {richText,[{word,18890,{face,eg_font_7,10,0,{0,0,0},true},"This"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,7220,{face,eg_font_7,10,0,{0,0,0},true},"is"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,30810,{face,eg_font_7,10,0,{0,0,0},true},"normal"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,15820,{face,eg_font_7,10,0,{0,0,0},true},"text"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,13340,{face,eg_font_7,10,0,{0,0,0},true},"set"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,7780,{face,eg_font_7,10,0,{0,0,0},true},"in"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,25020,{face,eg_font_7,10,0,{0,0,0},true},"10/15"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,43650,
+                         {face,eg_font_7,10,0,{0,0,0},true},
+                         "Helvetica."},
+                   {nl,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,5560,{face,eg_font_7,10,0,{0,0,0},true},"It"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,36680,{face,eg_font_7,10,0,{0,0,0},true},"includes"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,53910,
+                         {face,eg_font_5,10,0,{0,0,0},true},
+                         "emphasised"},
+                   {space,2780,{face,eg_font_5,10,0,{0,0,0},true}},
+                   {word,27880,{face,eg_font_5,10,0,{0,0,0},true},"terms,"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,13340,{face,eg_font_7,10,0,{0,0,0},true},"set"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,7780,{face,eg_font_7,10,0,{0,0,0},true},"in"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   ...
+
+
+Widths
+
+        [330,350,350,350,350,350,350]
+
+Lines
+
+Lines: [{richText,[{word,18890,{face,eg_font_7,10,0,{0,0,0},true},"This"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,7220,{face,eg_font_7,10,0,{0,0,0},true},"is"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,30810,{face,eg_font_7,10,0,{0,0,0},true},"normal"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,15820,{face,eg_font_7,10,0,{0,0,0},true},"text"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,13340,{face,eg_font_7,10,0,{0,0,0},true},"set"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,7780,{face,eg_font_7,10,0,{0,0,0},true},"in"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,25020,{face,eg_font_7,10,0,{0,0,0},true},"10/15"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,43650,
+                         {face,eg_font_7,10,0,{0,0,0},true},
+                         "Helvetica."},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,5560,{face,eg_font_7,10,0,{0,0,0},true},"It"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,36680,{face,eg_font_7,10,0,{0,0,0},true},"includes"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,53910,
+                         {face,eg_font_5,10,0,{0,0,0},true},
+                         "emphasised"},
+                   {space,2780,{face,eg_font_5,10,0,{0,0,0},true}},
+                   {word,27880,{face,eg_font_5,10,0,{0,0,0},true},"terms,"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,13340,{face,eg_font_7,10,0,{0,0,0},true},"set"}]},
+        {richText,[{word,7780,{face,eg_font_7,10,0,{0,0,0},true},"in"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,81090,
+                         {face,eg_font_7,10,0,{0,0,0},true},
+                         "Helvetica-Oblique."},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,17230,{face,eg_font_7,10,0,{0,0,0},true},"The"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,17140,{face,eg_font_7,10,0,{0,0,0},true},"TeX"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,54180,
+                         {face,eg_font_7,10,0,{0,0,0},true},
+                         "hyphenation"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,41270,{face,eg_font_7,10,0,{0,0,0},true},"algorithm"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,7220,{face,eg_font_7,10,0,{0,0,0},true},"is"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,60020,
+                         {face,eg_font_7,10,0,{0,0,0},true},
+                         "implemented."},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,17230,{face,eg_font_7,10,0,{0,0,0},true},"The"},
+                   {space,2780,{face,eg_font_7,10,0,{0,0,0},true}},
+                   {word,20250,{face,eg_font_7,10,0,{0,0,0},true},"term"}]},
+                   ...

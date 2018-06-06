@@ -1,14 +1,16 @@
 %%% *********************************************************
 %%% ep_flow_control.erl
-%%%
-%%% {c) 2018 Lloyd R. Prentice
-%%% Author:     Lloyd R. Prentice
-%%% License:
-%%% File:       ep_flow_control.erl
-%%% Description:
-%%%    Manage content flow through layout
-%%% *********************************************************
 
+%%% @author     Lloyd R. Prentice
+%%% @copyright  2018 Lloyd R. Prentice
+%%% @version   .01
+%%% @doc
+%%%   License:
+%%%   File:         ep_flow_control.erl
+%%%   Description:  Manage content flow across panels and pages 
+%%% @end
+
+%%% ==========================================================================
 
 
 -module (ep_flow_control).

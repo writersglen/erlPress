@@ -27,6 +27,7 @@
 %%==========================================================================
 
 
+
 -module(ep_line_break).
 
 %% TODO: Make sure we exit the split para recursion if the paragraph is too
@@ -67,6 +68,7 @@ dbg_io(_,_) -> ok.
 %% ----------------------------------------------------------------------------
 %% @doc Default to english (Great Britain) style linebreaks
 %% @end------------------------------------------------------------------------
+
 break_richText(RT, TW) ->
     break_richText(RT, TW, ?en_GB).
 
@@ -101,10 +103,12 @@ break_richText(RT, TW) ->
 %%       font used with the string "1111111111111...XXX", when the string and
 %%       __line width__ is very long.
 %% @end -----------------------------------------------------------------------
+
+
 break_richText({richText, T}, {justified, W}, Rules) -> 
     text2para_widths(T, justified, W, Rules);
 
-%% This phrase added by LRP
+%% next two phrases added by LRP
 
 break_richText({richText, T}, {left_justified, W}, Rules) -> 
     text2para_widths(T, ragged, W, Rules);
@@ -113,6 +117,9 @@ break_richText({richText, T}, {right_justified, W}, Rules) ->
     text2para_widths(T, ragged, W, Rules);
 
 break_richText({richText, T}, {ragged, W}, Rules) -> 
+    text2para_widths(T, ragged, W, Rules);
+
+break_richText({richText, T}, {ragged_left, W}, Rules) -> 
     text2para_widths(T, ragged, W, Rules);
 
 break_richText({richText, T}, {ragged_force_split, W}, Rules) -> 
@@ -136,6 +143,7 @@ text2para_widths(Txt, ParaShape, Widths, Rules) ->
 	ragged             -> text2para_ragged(Txt1, Widths, [], ParaShape);
 	ragged_force_split -> text2para_ragged(Txt1, Widths, [], ParaShape);
 	simple_hyphenate   -> text2para_ragged(Txt1, Widths, [], ParaShape);
+	preformated        -> text2para_ragged(Txt1, Widths, [], ParaShape);
 	justified          -> justify(Txt1, Widths, Rules)
     end.
 
@@ -221,6 +229,7 @@ first_break_line([], Sum, Len, L, _SplitType) ->
 %% @doc   Tok = word() as space() and nl() have already been removed
 %%        Len = 1000th pt
 %% @end------------------------------------------------------------------------
+
 force_split(Tok, Len, SplitType) ->
     {word, Width, Face, Str} = Tok,
     StrLen = length(Str),
@@ -339,8 +348,8 @@ remove_leading_spaces([]) -> [].
 
 %% break_on_nl
 break_on_nl(Toks, [], L)     -> {lists:reverse(L), [], {richText, Toks}};
-break_on_nl([], T, L)        -> {lists:reverse(L), T, []};
-break_on_nl(Toks, [H|T], L)  ->
+break_on_nl([], T, L)        -> 
+   {lists:reverse(L), T, []}; break_on_nl(Toks, [H|T], L)  ->
     T1 = if T == [] -> [H];
             true    -> T
          end,

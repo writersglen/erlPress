@@ -1,16 +1,21 @@
+%%% ********************************************************* 
+%%% ep_impose.erl
 
-%%% ********************************************************* 
-%%% @copyright   2018 Lloyd R. Prentice
-%%% @author      Lloyd R. Prentice
-%%% @doc         
-%%%    License: MIT
-%%%    File:    ep_impose.erl
-%%%    Description: 
-%%%    Functions to impose standard format pages on paper stock
-%%%    Placement coordinates are relative to paper stock
-%%%    top left corner; e.g. paper stock {0, 0}
-%%% @end 
-%%% ********************************************************* 
+%%% @author     Lloyd R. Prentice
+%%% @copyright  2018 Lloyd R. Prentice
+%%% @version   .01
+%%% @doc
+%%%   License:
+%%%   File:         ep_impose.erl
+%%%   Description:   Functions to impose standard format pages 
+%%%                  on paper stock.
+%%%                  Placement coordinates are relative to paper stock
+%%%                  top left corner; e.g. paper stock {0, 0}
+ 
+%%% @end
+
+%%% ==========================================================================
+
 
 -module (ep_impose).
 

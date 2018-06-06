@@ -153,7 +153,7 @@ block2(PDF, [{xml, Xml}], TypeSpec, Boxes) ->
    Vacancies = ep_panel:available_lines(Box, TypeSpec),
 
    {Widths, _Off} = line_specs(Box, Vacancies),
-   case eg_line_break:break_richText(RichText, { Justification, Widths}) of
+   case ep_line_break:break_richText(RichText, { Justification, Widths}) of
         impossible  -> {error, cannot_break_line};
         {Lines,_,_} -> paste_up(PDF, Boxes, Lines, TypeSpec, [])
    end.

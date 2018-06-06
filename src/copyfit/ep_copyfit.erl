@@ -1,13 +1,17 @@
-%%% *********************************************************   
+%%% ==========================================================================
 %%% ep_copyfit.erl
-%%%
-%%% {c) 2018 Lloyd R. Prentice
-%%% Author:     Lloyd R. Prentice
-%%% License: 
-%%% File:       ep_copyfit.erl
-%%% Description: 
-%%%    Page make up functions  
-%%% ********************************************************* 
+
+%%% @author     Lloyd R. Prentice
+%%% @copyright  2018 Lloyd R. Prentice
+%%% @version   .01
+%%% @doc
+%%%   License:
+%%%   File:         ep_copyfit.erl
+%%%   Description:  Page makeup functions 
+%%% @end
+
+%%% ==========================================================================
+
 
 -module (ep_copyfit).
 

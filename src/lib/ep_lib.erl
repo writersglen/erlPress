@@ -1,11 +1,16 @@
 %%% *********************************************************
-%%% {c) 2018    Lloyd R. Prentice
-%%% Author:     Lloyd R. Prentice
-%%% License: 
-%%% File:       ep_lib.erl
-%%% Description: 
-%%%   ErlPress helper functions 
-%%% *********************************************************      
+
+%%% @author     Lloyd R. Prentice
+%%% @copyright  2018 Lloyd R. Prentice
+%%% @version   .01
+%%% @doc
+%%%   License:
+%%%   File:         ep_lib.erl
+%%%   Description:  erlPress library functions 
+%%% @end
+
+%%% ==========================================================================
+
 
 -module (ep_lib).
 
@@ -146,7 +151,8 @@ impose_line(Line, PageXY, PaperStock) ->
    {Pt1, Pt2}.
     
 impose_lines(Lines, PageXY, PaperStock) ->
-   [impose_line(Line, PageXY, PaperStock) || Line <- Lines].
+   List  = [impose_line(Line, PageXY, PaperStock) || Line <- Lines],
+   lists:reverse(List).
 
 
 -spec v_flip(Y :: integer(), PaperStock ::  atom()) -> integer().

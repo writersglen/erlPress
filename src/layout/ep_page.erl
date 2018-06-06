@@ -68,11 +68,11 @@ page_inches(Format) ->
 
 page_picas(Format) ->
    Dim = page_inches(Format),
-   ep_lib:to_picas(Dim).
+   ep_metrics:to_picas(Dim).
 
 page_points(Format) ->
    Dim = page_inches(Format),
-   ep_lib:to_points(Dim).
+   ep_metrics:to_points(Dim).
 
 
 

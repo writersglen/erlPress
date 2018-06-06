@@ -89,11 +89,8 @@ normalise_xml(Z, _, _) ->
     dbg_io("I cannot normalise:~p~n",[Z]).
 
 normalise_richText(Items, FontMap) ->
-    io:format("****** normalize_richText/2 Items: ~p~n", [Items]),
-    io:format("****** normalize_richText/2 FontMap: ~p~n~n", [FontMap]),
-    Items1 = [Items],
     L0 = lists:foldl(fun(I, L0) -> normalise_inline(I, FontMap, L0) end, 
-		     [], Items1),
+		     [], Items),
     L1 = lists:reverse(L0),
     test_inline_invarient(L1),
     {richText, L1}.
