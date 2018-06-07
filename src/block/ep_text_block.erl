@@ -21,6 +21,7 @@
 % -compile(export_all).
 
 -define(RADIUS, 10).
+-define(INDENT, 30).
 -define(MARGIN, 10).
 -define(BORDER, 1).
 -define(BORDER_STYLE, solid).
@@ -53,8 +54,10 @@ create(Text, Position, Measure) ->
    #{ text              => Text 
     , position          => Position
     , measure           => Measure 
+    , indent            => ?INDENT
     , nlines            => ?NLINES 
     , leading           => ?LEADING 
+    , font_size         => ?FONT_SIZE
     , radius            => ?RADIUS
     , border            => ?BORDER
     , border_style      => ?BORDER_STYLE
@@ -82,27 +85,37 @@ create(Text, Position, Measure) ->
 text_block(PDF, Job, BlockMap) ->
     {X, Y}          = maps:get(position, BlockMap),
     {X1, Y1}        = ep_job:flip_y(Job, BlockMap),
+
+
+
     NLines           = maps:get(nlines, BlockMap),
     Leading          = maps:get(leading, BlockMap),
     Measure          = maps:get(measure, BlockMap),
     Margin           = maps:get(margin, BlockMap),
-    BoxWidth         = Measure + (2 * Margin),
-    TextHeight       = Leading * NLines, 
+    TextHeight       = Leading * NLines,
+ 
+
     BoxHeight        = TextHeight + (2 * Margin),
+    BoxWidth         = Measure + 20 ,
     BoxSize          = {BoxWidth, BoxHeight},
     Radius           = maps:get(radius, BlockMap),
-    Text             = maps:get(text, BlockMap),
-    Justification    = maps:get(justification, BlockMap),
-    TypeSpec         = maps:get(typespec, BlockMap),
     BoxMap           = ep_round_rect:create({X, Y + BoxHeight}, 
                                              BoxSize, Radius),
     BoxMap1          = inherit_values(BlockMap, BoxMap),
+
     % Draw box
     ep_round_rect:round_rect(PDF, Job, BoxMap1),
+
     % Draw text
-    BackgroundColor   = maps:get(background_color, BlockMap),
-     ep_block:block(PDF, BackgroundColor, Text,  X1, Y1, Measure, 10, 
-                          Leading, NLines, Justification, TypeSpec),
+    ep_block:block(PDF, Job, BlockMap),
+
+%    BackgroundColor   = maps:get(background_color, BlockMap),
+%    Text             = maps:get(text, BlockMap),
+%    Justification    = maps:get(justification, BlockMap),
+%    TypeSpec          = maps:get(typespec, BlockMap),
+  
+%    ep_block:block(PDF, Text, X1 + Margin, Y1, Measure - 20, 10, 
+%                          Leading, NLines, Justification, TypeSpec),
     ok.
 
 %% @doc Transfer values from BlockMap to BoxMap
@@ -120,5 +133,5 @@ inherit_values(BlockMap, BoxMap) ->
     BoxMap2          = maps:put(border_style, BorderStyle, BoxMap1),
     BoxMap3          = maps:put(border_color, BorderColor, BoxMap2),
     BoxMap4          = maps:put(background_color, BackgroundColor, BoxMap3),
-    maps:put(margin, Margin, BoxMap4).
+    maps:put(margin, Margin - 20, BoxMap4).
 

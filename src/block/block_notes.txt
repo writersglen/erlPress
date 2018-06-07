@@ -20,10 +20,73 @@ We call these elements "content items."
          paste partial item into panel; drop panel from list
       If not, drop panel from list and recurse
 
+***************************************
 
+Markdown ->
+XML      ->
+    eg_xml_lite:parse_all_forms
+Nomralized ->
+     eg_xml_lite:parse_all_forms
+RichText ->
+Widths ->
+     [Len-20|lists:duplicate(NLines-1, Len)]
+Lines ->
+    case ep_line_break:break_richText(RichText, { Justification, Widths}) of
+        impossible ->
+            io:format("Cannot break line are widths ok~n");
+        {Lines,_,_} ->
+            Code = ep_richText2pdf:richText2pdf(PDF, X, Y, Justification, 0, Lines,
+                                                Leading, Widths, Off),
+
+Code ->
+    case ep_line_break:break_richText(RichText, { Justification, Widths}) of
+        impossible ->
+            io:format("Cannot break line are widths ok~n");
+        {Lines,_,_} ->
+            Code = ep_richText2pdf:richText2pdf(PDF, X, Y, Justification, 0, Lines,
+                                                Leading, Widths, Off),
+
+
+
+PDF
+
+
+
+
+
+****************************************
+
+217> eg_xml_lite:parse_all_forms(Text).
+[{xml,{p,[],
+         [{raw,"This is normal text set in 14/21 Times Roman.\nIt includes "},
+          {em,[],[{raw,"emphasized terms,"}]},
+          {raw," set in Times-Italic. The TeX\nhyphenation algorithm is implemented.  The term "},
+          {code,[],[{raw,"{person, \n\"Joe\"}"}]},
+          {raw," is an Erlang term.\nThe variable "},
+          {code,[],[{raw,"X"}]},
+          {raw,", was immediately followed by\na comma. The justification algorithm does proper "},
+          {em,[],[{raw,"kerning"}]},
+          {raw,",\nwhich is more than "},
+          {em,[],[{raw,"Microsoft Word"}]},
+          {raw," can do. AWAY is\ncorrectly kerned! Erlang terms "},
+          {code,[],[{raw,"{like, this}"}]},
+          {raw,"\nare typeset in "},
+          {em,[],[{raw,"courier."}]}]}}]
+218> Head = "<h1>This is a headline</h1>".
+"<h1>This is a headline</h1>"
+219> 
+219> 
+219> eg_xml_lite:parse_all_forms(Head).   
+[{xml,{h1,[],[{raw,"This is a headline"}]}}]
+220> 
+220> 
+220> eg_xml_lite:parse_all_forms("The quick brown fox").
+{error,more_data_expected}
+221> eg_xml_lite:parse_all_forms("<ci>The quick brown fox</ci>").
+[{xml,{ci,[],[{raw,"The quick brown fox"}]}}]
 
  
-
+Also see: eg_xml_lite:parse_file(F).
 
 
 
