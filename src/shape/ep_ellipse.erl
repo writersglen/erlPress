@@ -76,7 +76,6 @@ create(Center, Axes) ->
     , border_style   => ?DEFAULT_BORDER_STYLE
     , border_color   => ?DEFAULT_BORDER_COLOR 
     , fill_color     => ?DEFAULT_FILL_COLOR 
-    , format         => ?DEFAULT_FORMAT 
     }. 
 
 %% ***********************************************************

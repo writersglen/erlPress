@@ -107,7 +107,7 @@ layout_widths(Widths, JumpList, Tag, CopyBlock) ->
 
 %% Testing
 
-normalize(Tag, ContentBlock, TagMap) ->
+normalise(Tag, ContentBlock, TagMap) ->
     Text = text(ContentBlock),
     Text1 = {Tag, [], Text},
     eg_xml2richText:normalise_xml(Text1, TagMap).
@@ -124,7 +124,7 @@ function_test() ->
    ContentBlock = hd(ContentBlocks),
    Tag = tag(ContentBlock),
    TagMap = tag_map(ContentBlock),
-   normalize(Tag, ContentBlock, TagMap).
+   normalise(Tag, ContentBlock, TagMap).
    
 
 

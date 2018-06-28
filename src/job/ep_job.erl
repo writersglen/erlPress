@@ -15,7 +15,7 @@
 
 -module (ep_job).
 
--export([create/2, flip_y/2]).
+-export([create/2, flip_box/2, flip_y/2]).
 -export([resource_path/1]).
 -export([standard_paper_stock/0, desktop_printer_stock/0]).
 -export([paper_stock/1, stock_size/1]).
@@ -54,6 +54,13 @@ create(Title, Publisher) ->
     , paper_stock    => ?PAPER_STOCK 
     , page_format    => ?PAGE_FORMAT 
    }.
+
+
+flip_box(Job, Map) ->
+   {PaperStock, _PagePosition} = ep_job:stock_position(Job),
+   Position     = maps:get(position, Map),
+   Size         = maps:get(size, Map),
+   ep_lib:impose_box(Position, Size, PaperStock).
 
 
 flip_y(Job, Map) ->

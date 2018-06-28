@@ -13,25 +13,24 @@
 %%% ==========================================================================
 
 
-
 -module (ep_text_block).
 
 -export ([create/3, text_block/3]).
 
 % -compile(export_all).
 
--define(RADIUS, 10).
+-define(TYPETAG, report).
+-define(FACE, ep_typespec:report_faces(p)).
+-define(LEADING, 18).
+-define(NLINES, 10).
+-define(JUSTIFY, justified).   
 -define(INDENT, 30).
+-define(RADIUS, 10).
 -define(MARGIN, 10).
 -define(BORDER, 1).
 -define(BORDER_STYLE, solid).
 -define(BORDER_COLOR, black).
 -define(BACKGROUND_COLOR, eg_pdf_op:color(gainsboro)).
--define(FONT_SIZE, 14).
--define(LEADING, ?FONT_SIZE + (?FONT_SIZE div 2)).
--define(TYPESPEC, ep_typespec:default(14)).
--define(NLINES, 10).
--define(JUSTIFICATION, justified).   
 
 %% NOTE: See XXXX for color selections
 %%       Justification options: justified, centered, ragged, ragged_left
@@ -54,18 +53,18 @@ create(Text, Position, Measure) ->
    #{ text              => Text 
     , position          => Position
     , measure           => Measure 
-    , indent            => ?INDENT
+    , type_tag          => ?TYPETAG
     , nlines            => ?NLINES 
+    , margin            => ?MARGIN
+    , face              => ?FACE
     , leading           => ?LEADING 
-    , font_size         => ?FONT_SIZE
+    , justify           => ?JUSTIFY 
+    , indent            => ?INDENT
     , radius            => ?RADIUS
     , border            => ?BORDER
     , border_style      => ?BORDER_STYLE
     , border_color      => ?BORDER_COLOR
     , background_color  => ?BACKGROUND_COLOR 
-    , margin            => ?MARGIN
-    , typespec          => ?TYPESPEC 
-    , justification     => ?JUSTIFICATION 
     }.
 
 %% NOTE: If text is too long, it will spill over bottom
@@ -86,37 +85,28 @@ text_block(PDF, Job, BlockMap) ->
     {X, Y}          = maps:get(position, BlockMap),
     {X1, Y1}        = ep_job:flip_y(Job, BlockMap),
 
-
-
     NLines           = maps:get(nlines, BlockMap),
     Leading          = maps:get(leading, BlockMap),
     Measure          = maps:get(measure, BlockMap),
     Margin           = maps:get(margin, BlockMap),
     TextHeight       = Leading * NLines,
- 
 
     BoxHeight        = TextHeight + (2 * Margin),
-    BoxWidth         = Measure + 20 ,
+    BoxWidth         = Measure,
+    io:format("BoxWidth: ~p~n", [BoxWidth]),
     BoxSize          = {BoxWidth, BoxHeight},
     Radius           = maps:get(radius, BlockMap),
     BoxMap           = ep_round_rect:create({X, Y + BoxHeight}, 
                                              BoxSize, Radius),
     BoxMap1          = inherit_values(BlockMap, BoxMap),
 
-    % Draw box
+   % Draw box
     ep_round_rect:round_rect(PDF, Job, BoxMap1),
 
-    % Draw text
+   % Draw text
     ep_block:block(PDF, Job, BlockMap),
-
-%    BackgroundColor   = maps:get(background_color, BlockMap),
-%    Text             = maps:get(text, BlockMap),
-%    Justification    = maps:get(justification, BlockMap),
-%    TypeSpec          = maps:get(typespec, BlockMap),
-  
-%    ep_block:block(PDF, Text, X1 + Margin, Y1, Measure - 20, 10, 
-%                          Leading, NLines, Justification, TypeSpec),
     ok.
+
 
 %% @doc Transfer values from BlockMap to BoxMap
 
@@ -133,5 +123,5 @@ inherit_values(BlockMap, BoxMap) ->
     BoxMap2          = maps:put(border_style, BorderStyle, BoxMap1),
     BoxMap3          = maps:put(border_color, BorderColor, BoxMap2),
     BoxMap4          = maps:put(background_color, BackgroundColor, BoxMap3),
-    maps:put(margin, Margin - 20, BoxMap4).
+    maps:put(margin, Margin, BoxMap4).
 

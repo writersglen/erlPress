@@ -1,4 +1,524 @@
 
+erlPress Programmer’s Guide
+
+
+
+ErlPress
+
+erlPress is a system for “painting” text and images on print media. It enables document creators to generate typographically sophisticated PDF documents and publications from within Erlang applications.
+
+erlPress is Open Source, flexible, and easy to use.
+
+
+%% *****************************************************************
+%% Genesis 
+%% *****************************************************************
+
+Genesis
+
+erlPress revises and extends ErlGuten, Joe Armstrong’s Erlang-based “system for high-quality typesetting.”
+
+It honors and strives to advance Joe’s original goals:
+
+— Easy to use – simple textual input
+
+— Multi-mode inputs (suited for technical reports, magazine layout and presentations)
+
+— Very high quality layout engine (better than TeX, in-design, quark etc.)
+
+http://erlang.org/euc/04/erlguten.pdf
+http://erlang.org/pipermail/erlang-questions/2003-March/008001.html
+
+erlPress further draws on excellent work by Hugh Hawkins, Carl Wright and others who have carried forward Joe’s vision.
+
+https://github.com/hwatkins/erlguten
+https://github.com/richcarl/erlguten
+
+Hugh Hawkins modestly describes ErlGuten as a “PDF generation application.” Thus, Adobe reference manual Version 1.4 is the inspiration and blueprint underlying ErlGuten.
+
+https://www.adobe.com/devnet/pdf/pdf_reference_archive.html
+
+Developed in the early 1990’s by Adobe, PDF is “a file format for representing documents in a manner independent of the application software, hardware, and operating system used to create them and of the output device on which they are to be displayed or printed.”
+
+PDF reference manual Version 1.4 p. 9
+
+PDF is based on the industry standard Postscript programming language developed by Adobe in 1985. Postscript, in turn, is an implementation of Adobe’s imaging model which, simply stated, models “paint” placed on a page in selected areas.
+
+Adobe reference manual Version 1.4 p. 32
+
+ErlGuten brings PDF and Postscript to Erlang. But ErlGuten as a diamond in the rough. It’s font handling and typesetting routines are particularly noteworthy. But, despite work by several contributors, ErlGuten it fall short of promised goals.
+
+
+
+%% *****************************************************************
+%% erlPress 
+%% *****************************************************************
+
+erlPress
+
+ErlPress strives to advance ErlGuten in several ways:
+
+— Improve code readability and documentation
+
+— Reorganize code for easier maintenance and extensibility
+
+— Provide user interfaces and terminology more aligned with editorial, graphic design, and print traditions and practices
+
+— Provide support for extended Markdown input
+
+— Provide libraries for easy development of conventional print formats ranging from business cards, invoices, and reports to books and magazines.
+
+
+%% *****************************************************************
+%% Editorial work flow 
+%% *****************************************************************
+
+
+Editorial work flow
+
+erlPress is inspired by traditions of the commercial editorial and 
+publishing world.  In this world, print matter is created by
+specialist professionals: 
+
+
+-- Client or publisher commissions an editorial project; e.g. job
+   and specifies format; e.g. postcard, newsletter, book
+
+-- Writers create articles or manuscripts; e.g. text also known as copy
+
+-- Photographers/photo editors generate images
+
+-- Illustrators generate images
+
+-- Editors assign writers; edit articles or manuscript
+
+-- Graphic designer specifies type; e.g. fonts, faces, sizes
+
+-- Typesetters type set articles or manuscript
+
+-- Editors proof typeset copy
+
+-- Graphic designer creates page layouts, pastes up typeset copy, 
+   and images
+
+-- Printer prints one or more copies 
+
+
+Note that the functions above may be executed by more than one person.
+
+erlPress is concerned mainly with editorial processes resulting in PDF 
+files. These files, in turn, may be printed in quantity on a desktop 
+printer for distribution or given to a commercial printer for reproduction.
+
+
+%% *****************************************************************
+%% erlPress user Work Flow 
+%% *****************************************************************
+
+
+erlPress User Work Flow
+
+— Select document format, e.g. size and shape
+— Write/edit copy
+— Prepare illustrations
+— Design page grids
+— Layout copy and images
+— Select paper stock
+— Impose document format on paper stock
+— Print
+— Proof and correct
+— Publish
+
+
+%% *****************************************************************
+%% Programmer's perspective 
+%% *****************************************************************
+
+
+Programmer’s perspective
+
+erlPress strives to automate as much of the user workflow as possible and to deliver the most intuitive possible user interface.
+
+At heart, erlPress involves positioning boxes of various size in two-dimensional space.
+
+Boxes contain other boxes, graphic elements, and text. Much of the code involves translating sets of xy coordinates relative to other xy coordinates. Boxes define the “selected areas” in which output devices “paint” graphic elements and text.
+
+Operationally, “paint” is implemented as sequences of PDF and postscript operators defined in the PDF reference manual.
+
+
+%% *****************************************************************
+%% Concepts, technical terms, and jargon 
+%% *****************************************************************
+
+
+Concepts, technical terms, and jargon
+
+The history of printing and graphic design stretches back to Johannes Gutenberg’s invention of movable type in 1439 and, no doubt, before.
+
+A rich and descriptive technical vocabulary that facilitates efficient teamwork in the production of printed documents has evolved over over the centuries and is used widely in graphic design studios and print shops today.
+
+For this reason, erlPress employs technical terms and concepts drawn from print/graphic design tradition as well as terms defined in the PDF reference manual.
+
+We've added a few technical terms and jaron of our own.
+
+Here are a few terms that will serve you well as you review and work with erlPress code:
+
+
+%% *****************************************************************
+%% Content
+%% *****************************************************************
+
+CONTENT
+
+erlPress composes "content elements" to generate PDF files. Content 
+includes text, images, and geometric objects. Text may be presented
+as "text_blocks", e.g. raw text; "articles"; or "manuscripts." 
+
+Content elements have one or more attributes that define the 
+position, size, and other attributes of the element. These attributes
+are represented as Erlang maps in erlPress.
+
+
+%% *****************************************************************
+%% Job 
+%% *****************************************************************
+
+JOB
+
+A "print job" is represented as an Erlang map in erlPress:
+
+create(Title, Publisher) ->
+   #{ title          => Title
+    , publisher      => Publisher
+    , path           => "./publishers/" ++ Publisher ++ "/jobs"
+    , directory      => re:replace(Title, " ", "_", [global, {return, list}])
+    , author         => undefined
+    , subject        => undefined
+    , description    => undefined
+    , keywords       => undefined
+    , start_date     => ep_lib:today()
+    , deadline       => undefined
+    , paper_stock    => ?PAPER_STOCK
+    , page_format    => ?PAGE_FORMAT
+   }.
+
+
+%% *****************************************************************
+%% Metrics 
+%% *****************************************************************
+
+METRICS
+
+Printers use picas and points as primary units of measure.
+
+1 pica  = 1/6 inch
+1 point = 12 picas
+
+erlPress uses points for all positioning and size specifications. 
+
+erlPress copyfitting routines use 1/1000th of a pica as unit of 
+measure between glyphs. 
+
+To convert a position or size tuple specified in inches, e.g. {X, Y}
+or {Width, Height}, to points, execute ...ep_metrics:to_points/2
+
+
+%% *****************************************************************
+%% Paper stock 
+%% *****************************************************************
+
+PAPER STOCK
+
+Printers feed "paper stock" through their printers to reproduce
+printed matter.
+
+To see list of of standard paper sizes used by printers, execute
+...ep_paper_stock:standard_sizes/0.
+
+To convert paper stock specified in inches to points, execute
+..ep_paper_stock:stock_size_points/1.
+
+To see selected list of paper stock suitable for desktop printers,
+execute ..ep_paper_stock:desktop_printer_stock/0.
+
+
+%% *****************************************************************
+%% Boxes 
+%% *****************************************************************
+
+BOXES
+
+Rectangles or "boxes" are convenient abstractions for placing 
+content elements on a page.
+
+The PDF reference manual Ver. 1.4 specifies several nested boxes; p. 677:
+
+-- Media box 
+-- Crop box
+-- Bleed box
+-- Trim box
+-- Art box
+
+Media box is essentially synonomous with dimensions paper stock.
+
+Crop box "defines the region to which the contents of the page are to be
+clipped (cropped) when displayed or printed... the crop box will
+determine how the page's contents are to be positioned on the output
+medium."
+
+Bleed box "defines the region to which the contents of the page should
+be clipped when output in a production environment. This may include
+some extra 'bleed area' needed to accomodate the physical limitations
+of cutting, folding, and trimming equipment."
+
+Trim box "defines the intended dimensions of the finished page after
+trimming... The default value is the page's crop box."
+
+Art box "defines the extent of the page's meaningful content... as 
+intended by the page's creator."
+
+
+%% *****************************************************************
+%% Imposition 
+%% *****************************************************************
+
+IMPOSITION
+
+Imposition refers to how the crop box is positioned on the output
+medium. If the page is sufficiently smaller than the paper stock
+on which it's printed, a bookmark or postcard say, it may be possible 
+to print two or more pages on the same sheet. 
+
+
+%% *****************************************************************
+%% Format 
+%% *****************************************************************
+
+FORMAT
+
+Format refers to the size and intended functionality of the final
+printed piece. 
+
+To see list of formats supported by erlPress, execute
+rp(ep_format:formats()).
+
+To trim sizes, rp(ep_format:format_list()).
+
+
+%% *****************************************************************
+%% Page grid 
+%% *****************************************************************
+
+PAGE GRID 
+
+Graphic designers create "page grids" to organize content on a page.
+
+A page grid is a composition of boxes, each of which represents a block
+of text or image.
+
+A well-designed page grid presents a pleasing composition, organized
+content, and a controlled "eye-path" guiding the consumer through
+the content.
+
+Page grids are represented by a list of "panels" in erlPress.
+
+
+%% *****************************************************************
+%% Panel 
+%% *****************************************************************
+
+PANEL
+
+In erlPress, a panel is a box that has width, height, a name and a unique 
+index number relative to other panels on the page.
+
+
+%% *****************************************************************
+%% Text elements
+%% *****************************************************************
+
+
+TEXT BLOCK
+
+create(Position, Size, Radius) ->
+   #{ position          => Position
+    , size              => Size
+    , radius            => Radius
+    , border            => ?BORDER
+    , border_style      => ?BORDER_STYLE
+    , border_color      => ?BORDER_COLOR
+    , background_color  => ?BACKGROUND_COLOR
+    }.
+
+PAGE NUMBER
+
+create(From, Text) ->
+   #{ from         =>  From
+    , text          => Text
+    , font          => ?FONT
+    , font_size     => ?FONT_SIZE
+    }.
+
+TYPE FACE
+
+create(Font, Size) ->
+   #{ font        => Font
+    , size        => Size
+    , breakable   => true
+    , color       => ?COLOR
+    , voffset     => 0
+    }.
+
+%% *****************************************************************
+%% Images 
+%% *****************************************************************
+
+IMAGE
+
+create(ImageFileName, Position, Size) ->
+   #{ image_file_name  => ImageFileName
+    , position         => Position    %% NOTE: bottom left xy of image 
+    , size             => Size
+    }.
+
+%% *****************************************************************
+%% Line elements 
+%% *****************************************************************
+
+LINE
+
+create(From, To) ->
+   #{ from         => From
+    , to           => To
+    , width        => ?DEFAULT_WIDTH
+    , dash         => ?DEFAULT_DASH
+    , color        => ?DEFAULT_COLOR
+    }.
+
+LINES
+
+create(LineList) ->
+    #{ lines   => LineList
+     }.
+
+GRID
+
+create(XList, YList) ->
+    #{ xlist    => XList
+     , ylist    => YList
+     }.
+
+CROPMARK
+
+create(Position) ->
+   #{position    =>  Position
+    }.
+
+BEZIER
+
+create(Pt1, Pt2, Pt3, Pt4) ->
+   #{ from         => Pt1
+    , pt2          => Pt2
+    , pt3          => Pt3
+    , to           => Pt4
+    , width        => ?DEFAULT_WIDTH
+    , color        => ?DEFAULT_COLOR
+    }.
+
+
+%% *****************************************************************
+%% Shapes 
+%% *****************************************************************
+
+
+CIRCLE
+
+create(Center, Radius) ->
+   #{ center        => Center
+    , radius        => Radius
+    , border        => ?BORDER
+    , border_style  => ?BORDER_STYLE
+    , border_color  => ?BORDER_COLOR
+    , fill_color    => ?FILL_COLOR
+    }.
+
+DOT
+
+create(Center) ->
+   #{ center         => Center
+    , radius         => ?DEFAULT_RADIUS
+    , color          => black
+    , border         => 1
+    , border_type    => solid
+    , border_color   =>  black
+    }.
+
+ELLIPSE
+
+create(Center, Axes) ->
+   #{ center         => Center
+    , axes           => Axes
+    , border         => ?DEFAULT_BORDER
+    , border_style   => ?DEFAULT_BORDER_STYLE
+    , border_color   => ?DEFAULT_BORDER_COLOR
+    , fill_color     => ?DEFAULT_FILL_COLOR
+    }.
+
+POLYGON
+
+create(Vertices) ->
+   #{ vertices      => Vertices
+    , outline       => ?OUTLINE_WIDTH
+    , dash          => ?DASH
+    , outline_color => ?OUTLINE_COLOR
+    , fill_color    => ?FILL_COLOR
+    }.
+
+RECTANGLE
+
+create(Position, Size) ->
+   #{ position       => Position
+    , size           => Size
+    , outline        => ?BORDER
+    , outline_style  => ?BORDER_STYLE
+    , outline_color  => ?BORDER_COLOR
+    , fill_color     => ?FILL_COLOR
+    }.
+
+ROUNDED RECTANGLE
+
+create(Position, Size, Radius) ->
+   #{ position          => Position
+    , size              => Size
+    , radius            => Radius
+    , border            => ?BORDER
+    , border_style      => ?BORDER_STYLE
+    , border_color      => ?BORDER_COLOR
+    , background_color  => ?BACKGROUND_COLOR
+    }.
+
+
+%% *****************************************************************
+%% Road Map/Wish List 
+%% *****************************************************************
+
+Road Map/Wish List
+
+- Articles and Beads
+- Initial caps
+- Footnotes
+- Guru challenge: Wouldn't it be neat to wrap text in a circle or 
+      ellipse with even margin all the way around
+— Support for Open Type and True Type fonts
+— GUI - Fontmap editor
+— GUI - Text editor
+— Document design/layout editor
+— One-input multiple-output functionality; e.g. true output device independence, both digital and print
+
+
+
+
+**************************************************
 Articles and Beads
 
 Assume article is tagged as XML:

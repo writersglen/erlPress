@@ -13,32 +13,33 @@
 %%% ==========================================================================
 
 
+
 -module(ep_exper).
 
 -export([run/0]).
 
 
 run()->
-    Job = ep_job:create("erlPress: Highlights", "LRP"),
+    Job = ep_job:create("Test article", "LRP"),
     OutFile = "./pdf/galleys/" ++ ?MODULE_STRING ++ ".pdf", 
 
     PDF = eg_pdf:new(),
+
     ep_page:first_page(PDF),  % ****** Page1
-
-
 
     % ********** Page 1 makeup
 
-     Text1B      = "<h1>This is a headline</h1>",
-     Position1B  = {72, 140},
-     Measure1B   = 450,
-     BlockMap1C  = ep_text_block:create(Text1B, Position1B, Measure1B),
-     BlockMap1D  = maps:put(nlines, 6, BlockMap1C),
-     BlockMap1E  = maps:put(margin, 0, BlockMap1D),
-     BlockMap1H  = maps:put(background_color, white, BlockMap1E),
-     BlockMap1I  = maps:put(border_color, white, BlockMap1H),
-     ep_text_block:text_block(PDF, Job, BlockMap1I),
+     ep_show_grid:show_grid(PDF, letter),
+     
+     Panel1 = ep_panel:create({1, 1, top}, {72, 72}, {420, 200}),
+     Panel2 = ep_panel:create({1, 2, continue}, {72, 272}, {200, 300}),
+     Panel3 = ep_panel:create({1, 3, final}, {272, 272}, {220, 200}),
+     Beads  = [Panel1, Panel2, Panel3],
+     Copy   = ep_sample_text:article(),
+     ArticleMap = ep_article:create(Copy, Beads),
 
+     ep_article:article(PDF, Job, ArticleMap),
 
-ep_job:save_job(PDF, OutFile).
+    ep_job:save_job(PDF, OutFile).
+
 

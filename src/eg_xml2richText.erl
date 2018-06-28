@@ -1,5 +1,6 @@
 %%==========================================================================
 %% Copyright (C) 2003 Joe Armstrong
+%% Modified 2018 Lloyd R. Prentice
 %%
 %% Permission is hereby granted, free of charge, to any person obtaining a
 %% copy of this software and associated documentation files (the
@@ -120,7 +121,11 @@ normalise_inline({_Tag, _, []}, _FontMap, L) ->
     L.
 
 normalise_tag(Tag, Str, FontMap, L) ->
-    Face = get_face(Tag, FontMap),
+    % Modified by LRP
+
+    TaggedFace = lists:keyfind(Tag, 1, FontMap),
+    Face = element(2, TaggedFace),
+
     case eg_richText:is_face_breakable(Face) of
 	true ->
 	    normalise_str(Str, Face, L, skip_ws);
@@ -130,11 +135,13 @@ normalise_tag(Tag, Str, FontMap, L) ->
 % 	    [Wd|L]
     end.
 
-get_face(Tag, [{Tag,Face}|_]) -> Face;
-get_face(Tag, [_|T]) -> get_face(Tag, T);
-get_face(Tag, []) ->
-    dbg_io("There is no face associated with Tag=~p~n",[Tag]),
-    eg_pdf:default_face().
+
+
+% get_face(Tag, [{Tag,Face}|_]) -> Face;
+% get_face(Tag, [_|T]) -> get_face(Tag, T);
+% get_face(Tag, []) ->
+%    dbg_io("There is no face associated with Tag=~p~n",[Tag]),
+%    eg_pdf:default_face().
 
 %% Collect spaces nls etc.
 %% in a breakable face

@@ -1,0 +1,28 @@
+
+Xml
+
+{xml,{h1,[],[{raw,"This is a headline"}]}}
+
+{xml,{p,[],
+         [{raw,"This is normal text set in 14/21 Times Roman.\nIt includes "},
+          {em,[],[{raw,"emphasized terms,"}]},
+          {raw," set in Times-Italic. The TeX\nhyphenation algorithm is implemented.  The term "},
+          {code,[],[{raw,"{person, \n\"Joe\"}"}]},
+          {raw," is an Erlang term."}]}}
+
+
+
+RichText
+
+{richText,[{word,68004,
+                     {face,eg_font_7,36,0,{0,0,0},true},
+                     "This"},
+               {space,10008,{face,eg_font_7,36,0,{0,0,0},true}},
+               {word,25992,{face,eg_font_7,36,0,{0,0,0},true},"is"},
+               {space,10008,{face,eg_font_7,36,0,{0,0,0},true}},
+               {word,20016,{face,eg_font_7,36,0,{0,0,0},true},"a"},
+               {space,10008,{face,eg_font_7,36,0,{0,0,0},true}},
+               {word,136080,
+                     {face,eg_font_7,36,0,{0,0,0},true},
+                     "headline"}]}}
+

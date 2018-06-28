@@ -66,18 +66,20 @@ richText2pdf(PID, X, Y0, Type, Rot, Lines, Leading, Widths, Offsets) ->
     P2 = case Type of
 	     justified ->
 		 {_Cos, _Sin, P1} = init_rotation_matrix(X, Y0, Rot, P),
-		 make_justified(PID, X,Y,Leading,Lines,Offsets,Widths,P1);
+		 make_justified(PID, X, Y, Leading, Lines, Offsets, Widths, P1);
 	     Style when Style == left_justified;
 			Style == right_justified;
 			Style == centered ->
 		 {_Cos, _Sin, P1} = init_rotation_matrix(X, Y0, Rot, P),
-		 make_para(PID, X, Y, Leading, Lines,Offsets,Widths,Style,P1)
+		 make_para(PID, X, Y, Leading, Lines, Offsets, Widths, Style, P1)
     end,
     finalise(P2).
 
 make_justified(_PID, _X, _Y, _Leading, [], _, _, P) -> P;
+
 make_justified(PID, X, Y, _Leading, [H], [O|_], [W|_], P) -> 
     line2pdf(PID, X+O,Y,H,W,last_line_justified, P);
+
 make_justified(PID, X, Y, Leading, [H | T], [O | _O1] = O0, [W | _W1] = W0, P) -> 
     {O2, W2} = last_offset_width(O0, W0),
     P1 = line2pdf(PID, X + O, Y, H, W, justified, P),

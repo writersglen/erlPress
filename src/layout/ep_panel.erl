@@ -1,785 +1,529 @@
-%%% *********************************************************
+%%% ==========================================================================
 %%% ep_panel.erl
-%%% 
-%%% Author:     Lloyd R. Prentice
-%%% License: 
-%%% File:       ep_panel.erl
-%%
-%% NOTE: Panels "contain" content elements, either text or images.
-%% Boxes are composed on "page grids" to organize content and
-%% direct "eye path." 
-%%
-%% Panels wrap boxes (ep_box.erl) in a tuple to facilitate page grid
-%% design and layout functions
-%%
-%% X = upper left X coordinate of panel in points  
-%% Y = upper left Y coordinate of panel in points
-%% Width = width of box in points
-%% Height = height of box in pnts 
-%% id = {page number, box number, alias}
-%%
-%% IMPORTANT NOTE:
-%%
-%% PDF assumes that 0, 0 XY coordinates are at lower-left
-%% This seems unnatural for folks who read top-to_bottom
-%% So for convenience, we'll assume that 0, 0 XY is
-%% at upper-left of the panel.  This means that y will 
-%% have to be inverted relative to paper stock height when we 
-%% print.
-%% 
-%%% Description: 
-%%%   Create content panels 
-%%% *********************************************************   
+
+%%% @author     Lloyd R. Prentice
+%%% @copyright  2018 Lloyd R. Prentice
+%%% @version   .01
+%%% @doc
+%%%   License:
+%%%   File:         ep_panel.erl
+%%%   Description:  Create panel map 
+%%%
+%%%                 Panels wrap boxes (ep_box.erl) in tupleis to facilitate 
+%%%                 page design and layout functions
+%%%
+%%%                 Panels "contain" content elements, either text or images.
+%%%
+%%%                 Sets of panels are composed into a "page grids" to
+%%%                  organize content and direct "eye path." 
+%%%
+%%%                 Position = {X,Y}
+%%%                 X = upper left X coordinate of panel in points  
+%%%                 Y = upper left Y coordinate of panel in points
+%%%                 Size = {Width, Height}
+%%%                 Width = width of box in points
+%%%                 Height = height of box in pnts 
+%%%                 id = {page number, panel index, name}
+%%%
+%%%   IMPORTANT NOTE:
+%%%
+%%%                 PDF assumes that 0, 0 XY coordinates are at lower-left
+%%%                 This seems unnatural for folks who read top-to_bottom
+%%%                 So for convenience, we'll assume that 0, 0 XY is
+%%%                 at upper-left of the panel.  This means that y will 
+%%%                 have to be inverted relative to paper stock height when we 
+%%%                 print.
+%%% @end
+%%% ==========================================================================
 
 
 
 -module (ep_panel).
 
--export([create/6]).
--export([index/1, name/1]).
--export([get_box/1, replace_box/2, id/1]).
--export([x/1, y/1, width/1, measure/1, height/1]).
--export([panel_dimensions/1]). 
--export([end_x/1, end_y/1]).
--export([x_within/2, y_within/2]).
--export([gutter/1, leading/1]).
--export([default_gutter/0, default_leading/0]). 
--export([filled/1, available/1, available_lines/2]).
--export([will_fit/3]).
--export([bg_flag/1, if_background/1, border/1, border_type/1, border_color/1]).
--export([text_margin/1, text_color/1, background_color/1]).
--export([stroke/1, stroke_color/1, fill_color/1]).
--export([indent/1, continue/1]).
--export([update_id/2]).
--export([update_x/2, update_y/2, update_width/2, update_height/2]).
--export([update_gutter/2, update_leading/2, update_filled/2]).
--export([update_border/2, update_border_type/2, update_border_color/2]).
--export([update_text_margin/2, update_text_color/2, update_background_color/2]).
--export([update_stroke/2, update_stroke_color/2, update_fill_color/2]).
--export([update_indent/2, update_continue/2]).
--export([position/1, dimensions/1, box_spec/1]).
--export([shift/3, clip/3]).
--export([outer_box/1, inner_box/1, text_box/1]).
--export([if_border/1, show_border/1, hide_border/1]).
--export([background/1, corners/1]).
--export([print_panel/3]).
-  
+-export([create/3, panel/3]).
+-export([get_id/1, get_page_number/1, get_panel_index/1, get_panel_name/1]).
+-export([get_position/1, get_text_position/1, get_size/1, get_radius/1, get_next_line/1]).
+-export([get_available/1, get_nlines/3, get_border/1]).
+-export([get_border_style/1, get_border_color/1, get_margin/1]).
+-export([get_measure/1, get_indent/1]).
+-export([get_jump_prompt/1]).
+
+-export([update_id/2, update_position/2, update_size/2, update_radius/2]).
+-export([update_next_line/2]).
+-export([update_border/2, update_border_style/2, update_border_color/2]).
+-export([update_background_color/2, update_margin/2, update_jump_prompt/2]).
+-export([default_panel/0]).
+
+
+-define(ID, {1, 1, top}).
+-define(POSITION, {72, 72}).
+-define(SIZE, {350, 500}).
+-define(RADIUS, 10).
+-define(NEXT_LINE, 72).
+-define(BORDER, 1).
+-define(BORDER_STYLE, solid).
+-define(BORDER_COLOR, black).
+-define(BACKGROUND_COLOR, eg_pdf_op:color(gainsboro)).
+-define(MARGIN, 20).
+-define(INDENT, 30).
+-define(TYPESTYLE, report).
+-define(JUMP_PROMPT, "No jump").
+
+
 
 % -compile(export_all).
 
 -include("../../include/ep.hrl").
 
 %% ***********************************************************
-%% @doc Create panel 
+%% Create panel map 
 %% ***********************************************************
 
--spec create(Index :: integer(), Name :: string(), X :: integer(), 
-          Y :: integer(), Width :: integer(), Height :: integer()) -> map().
+%% @doc Create panel map
 
-create(Index, Name, X, Y, Width, Height) ->
-   Box = ep_box:create(X, Y, Width, Height),
-   {Index, Name, Box}.
+-spec create(ID       :: tuple(),
+             Position :: tuple(),
+             Size     :: tuple()) -> map().
 
-%% ***********************************************************
-%% @doc Return index 
-%% ***********************************************************
+create(ID, Position, Size) ->
+    #{ id                => ID
+     , position          => Position 
+     , size              => Size
+     , radius            => ?RADIUS
+     , next_line         => init_next_line(Position) 
+     , border            => ?BORDER
+     , border_style      => ?BORDER_STYLE
+     , border_color      => ?BORDER_COLOR
+     , background_color  => ?BACKGROUND_COLOR
+     , margin            => ?MARGIN
+     , indent            => ?INDENT
+     , jump_prompt       => ?JUMP_PROMPT
+     }. 
 
--spec index(Panel :: tuple()) -> integer().
-
-index(Panel) -> 
-   element(1, Panel).
-
-%% ***********************************************************
-%% @doc Return name 
-%% ***********************************************************
-
--spec name(Panel :: tuple()) -> string().
-
-name(Panel) ->
-   element(2, Panel).
-
-
-%% ***********************************************************
-%% Unwrap box 
-%% ***********************************************************
-
--spec get_box(Panel :: tuple()) -> map().
-
-get_box(Panel) ->
-   io:format("get_box/1 - Panel 107 ~n~p~n~n", [Panel]),
-   element(3, Panel).
-
-%% ***********************************************************
-%% Replace box 
-%% ***********************************************************
-
--spec replace_box(Panel :: tuple(), Box :: map()) -> tuple().
-
-replace_box(Panel, Box) ->
-   setelement(3, Panel, Box).
+init_next_line(Position) ->
+   {_X, Y} = Position,
+   Y.
 
 
 %% ***********************************************************
-%% Get panal parameters 
+%% Display panel 
 %% ***********************************************************
 
-%% @doc Return id of box
-
--spec id(Panel :: tuple()) -> string().
-
-id(Panel) ->
-    Box = get_box(Panel),
-    ep_box:id(Box).
-
-%% @doc Return left-most edge of panel 
-
--spec x(Panel :: tuple()) -> integer().
-
-x(Panel) ->
-    Box = get_box(Panel),
-    ep_box:x(Box).
-
-%% @doc Return y coordinate of vertical cursor 
-
--spec y(Panel :: tuple()) -> integer().
-
-y(Panel) ->
-    Box = get_box(Panel),
-    ep_box:y(Box).
-
-%% @doc return width of panel
-
--spec width(Panel :: tuple()) -> integer().
-
-width(Panel) ->
-    Box = get_box(Panel),
-    ep_box:width(Box).
-
-%% @doc Typeset speak; alias of width;  
-
--spec measure(Panel :: tuple()) -> integer().
-
-measure(Panel) ->
-    width(Panel).
-
-%% @doc return height panel
-
--spec height(Panel :: tuple()) -> integer().
-
-height(Panel) ->
-    Box = get_box(Panel),
-    ep_box:height(Box).
-
-
--spec panel_dimensions(Panel :: tuple()) -> tuple().
-
-panel_dimensions(Panel) ->
-  Width  = width(Panel),
-  Height = height(Panel),
-  {Width, Height}.
-
-
-
-
-%% @doc Return right-most edge of panel 
-
--spec end_x(Panel :: tuple()) -> integer().
-
-end_x(Panel) ->
-    Box = get_box(Panel),
-    ep_box:end_x(Box).
-
-%% @doc Return bottom edge of box
-
--spec end_y(Panel :: tuple()) -> integer().
-
-end_y(Panel) ->
-    Box = get_box(Panel),
-    ep_box:end_y(Box).
-
-x_within(Panel, X) ->
-    PanelX    = x(Panel),
-    PanelEndX = end_x(Panel),
-    (X >= PanelX) and (X =< PanelEndX).
-
-y_within(Panel, Y) ->
-    PanelY    = y(Panel),
-    PanelEndY = end_y(Panel),
-    (Y >= PanelY) and (Y =< PanelEndY).
-
-%% @doc return space between panel an next panel to right 
-
--spec gutter(Panel :: tuple()) -> integer().
-
-gutter(Panel) ->
-    Box = get_box(Panel),
-    ep_box:gutter(Box).
-
-%% @doc return space between panel an next panel below 
-
--spec leading(Panel :: tuple()) -> integer().
-
-leading(Panel) ->
-    Box = get_box(Panel),
-    ep_box:leading(Box).
-
-%% @doc return default space between panel an next panel to right 
-
--spec default_gutter() -> integer().
-
-default_gutter() ->
-    ep_box:default_gutter().
-
-%% @doc return default space between panel an next panel below 
-
--spec default_leading() -> integer().
-
-default_leading() ->
-    ep_box:default_leading().
-
-%% @doc return vertical space in points filled by content  
-
--spec filled(Panel :: tuple()) -> integer().
-
-filled(Panel) ->
-    Box = get_box(Panel),
-    ep_box:filled(Box).
-
-%% @doc Return vertical space available for content 
-
--spec available(Panel :: tuple()) -> integer().
-
-available(Panel) ->
-    Box = get_box(Panel),
-    ep_box:available(Box).
-
-%% @doc Given leadind, return number of lines that will
-%%   fit in available space 
-
--spec available_lines(Panel :: tuple(), Leading :: integer()) -> integer().
-
-available_lines(Panel, Leading) ->
-    Box = get_box(Panel),
-    ep_box:available_lines(Box, Leading).
-
-%% @doc Given leading, returns true if lines will fit in panel
-
--spec will_fit(Panel :: tuple(), Lines :: integer(), 
-       Leading :: integer()) -> boolean().
-
-will_fit(Panel, Lines, Leading) ->
-    AvailableLines = available_lines(Panel, Leading),
-    AvailableLines =< Lines.
+panel(PDF, Job, PanelMap) ->
+   PanelName = get_panel_name(PanelMap),
+   io:format("~nPasting panel -  Name: ~p~n", [PanelName]),
+   Position        = ep_job:flip_box(Job, PanelMap),
+   Size            = maps:get(size, PanelMap),
    
-%% @doc If true, display content in box with outline and color background
-
--spec bg_flag(Panel :: tuple()) -> boolean().
-
-bg_flag(Panel) ->
-    Box = get_box(Panel),
-    ep_box:bg_flag(Box).
-
-%% @doc Alias for bg_flag/1
-
-if_background(Panel) ->
-   bg_flag(Panel).
-
-
-%% @doc Return width of outline around panel 
-
--spec border(Panel :: tuple()) -> integer().
-
-border(Panel) ->
-    Box = get_box(Panel),
-    ep_box:border(Box).
-
-%% @doc Return type of outline: soliid, dashed, beveled 
-
--spec border_type(Panel :: tuple()) -> atom().
-
-border_type(Panel) ->
-    Box = get_box(Panel),
-    ep_box:border_type(Box).
-
-%% @doc Return border color; white, silver, gray, black, maroon, 
-%% red, fuchsia, purple lime, green, olive, yellow, navy, blue, teal, aqua
-
-
--spec border_color(Panel :: tuple()) -> atom().
-
-border_color(Panel) ->
-    Box = get_box(Panel),
-    ep_box:border_color(Box).
-
-%% @doc return margin: space around text when displayed in outlined panel
-
--spec text_margin(Panel :: tuple()) -> integer().
-
-text_margin(Panel) ->
-    Box = get_box(Panel),
-    ep_box:text_margin(Box).
-
-%% @doc Return text color; white, silver, gray, black, maroon, 
-%% red, fuchsia, purple lime, green, olive, yellow, navy, blue, teal, aqua
-
-
--spec text_color(Panel :: tuple()) -> atom().
-
-text_color(Panel) ->
-    Box = get_box(Panel),
-    ep_box:text_color(Box).
-
-%% @doc Return background color; white, silver, gray, black, maroon, 
-%% red, fuchsia, purple lime, green, olive, yellow, navy, blue, teal, aqua
-
--spec background_color(Panel :: tuple()) -> atom().
-
-background_color(Panel) ->
-    Box = get_box(Panel),
-    ep_box:background_color(Box).
-
-%% @doc See eg_pdf_op.erl 
-
--spec stroke(Panel :: tuple()) -> atom().
-
-stroke(Panel) ->
-    Box = get_box(Panel),
-    ep_box:stroke(Box).
-
-%% @doc See eg_pdf_op.erl 
-
--spec stroke_color(Panel :: tuple()) -> atom().
-
-stroke_color(Panel) ->
-    Box = get_box(Panel),
-    ep_box:stroke_color(Box).
-
-%% @doc See eg_pdf_op.erl 
-
--spec fill_color(Panel :: tuple()) -> atom().
-
-fill_color(Panel) ->
-    Box = get_box(Panel),
-    ep_box:fill_color(Box).
-
-%% @doc Return width of paragraph indent of text in panel 
-
--spec indent(Panel :: tuple()) -> integer().
-
-indent(Panel) ->
-    Box = get_box(Panel),
-    ep_box:indent(Box).
-
-%% @doc Return action to take when text overflows panel 
-
-continue(Panel) ->
-    Box = get_box(Panel),
-    ep_box:continue(Box).
+   Radius          = maps:get(radius, PanelMap),
+   Border          = maps:get(border, PanelMap),
+   BorderStyle     = maps:get(border_style, PanelMap),
+   BorderColor     = maps:get(border_color, PanelMap),
+   BackgroundColor = maps:get(background_color, PanelMap),
+   eg_pdf:set_line_width(PDF, Border),
+   eg_pdf:set_dash(PDF, BorderStyle),
+   eg_pdf:set_stroke_color(PDF, BorderColor),
+   eg_pdf:set_fill_color(PDF, BackgroundColor),
+   eg_pdf:round_rect(PDF, Position, Size, Radius),
+   eg_pdf:path(PDF, fill_stroke),
+   io:format("Leaving panel/3 - Panel Name: ~p~n~n", [PanelName]),
+   ok.
 
 
 %% ***********************************************************
-%% Update panal parameters 
+%% Get panel id 
 %% ***********************************************************
 
-%% @doc Update id
+%% @doc Get panel id
 
--spec update_id(Panel :: tuple(), ID :: string()) -> map().
+-spec get_id(PanelMap :: map()) -> tuple().
 
-update_id(Panel, ID) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_id(Box, ID),
-    replace_box(Panel, Box1).
+get_id(PanelMap) ->
+   maps:get(id, PanelMap).
 
-%% @doc Update left edge of panel 
 
--spec update_x(Panel :: tuple(), X :: integer()) -> map().
+%% ***********************************************************
+%% Get page number 
+%% ***********************************************************
 
-update_x(Panel, X) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_x(Box, X),
-    replace_box(Panel, Box1).
+%% @doc Get page number
 
-%% @doc Update top edge of panel 
+-spec get_page_number(PanelMap :: map()) -> tuple().
 
--spec update_y(Panel :: tuple(), Y :: integer()) -> map().
+get_page_number(PanelMap) ->
+   PageNumber = maps:get(id, PanelMap),
+   element(1, PageNumber).
 
-update_y(Panel, Y) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_y(Box, Y),
-    replace_box(Panel, Box1).
 
-%% @doc Update panel width
-    
--spec update_width(Panel :: tuple(), Width :: integer()) -> map().
+%% ***********************************************************
+%% Get panel index 
+%% ***********************************************************
 
-update_width(Panel, Width) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_width(Box, Width),
-    replace_box(Panel, Box1).
+%% @doc Get panel index
 
-%% @doc Update panel width
+-spec get_panel_index(PanelMap :: map()) -> tuple().
 
--spec update_height(Panel :: tuple(), Height :: integer()) -> map().
+get_panel_index(PanelMap) ->
+   PanelIndex= maps:get(id, PanelMap),
+   element(2, PanelIndex).
 
-update_height(Panel, Height) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_height(Box, Height),
-    replace_box(Panel, Box1).
 
-%% @doc Update gutter; e.g. reserved space to right of panel 
+%% ***********************************************************
+%% Get panel name 
+%% ***********************************************************
 
--spec update_gutter(Panel :: tuple(), Points :: integer()) -> map().
+%% @doc Get panel name  
 
-update_gutter(Panel, Points) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_gutter(Box, Points),
-    replace_box(Panel, Box1).
-    
-%% @doc Update leading; e.g. reserved space to below the panel 
+-spec get_panel_name(PanelMap :: map()) -> tuple().
 
--spec update_leading(Panel :: tuple(), Points :: integer()) -> map().
+get_panel_name(PanelMap) ->
+   PanelName= maps:get(id, PanelMap),
+   element(3, PanelName).
 
-update_leading(Panel, Points) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_leading(Box, Points),
-    replace_box(Panel, Box1).
-    
-%% @doc Update leading; e.g. reserved space to below the panel 
 
--spec update_filled(Panel :: tuple(), Points :: integer()) -> map().
+%% ***********************************************************
+%% Get position 
+%% ***********************************************************
 
-update_filled(Panel, Points) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_filled(Points, Box),
-    replace_box(Panel, Box1).
-    
-%% @doc  Update width of outline around panel; e.g. 1 to n 
+%% @doc Get position
 
--spec update_border(Panel :: tuple(), Points :: integer()) -> map().
+-spec get_position(PanelMap :: map()) -> tuple().
 
-update_border(Panel, Border) when Border >= 0, Border < 5 ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_border(Box, Border),
-    replace_box(Panel, Box1).
-  
-%% @doc Update type of outline: soliid, dashed, beveled 
+get_position(PanelMap) ->
+   maps:get(position, PanelMap).
 
--spec update_border_type(Panel :: tuple(), BorderType :: atom()) -> map().
 
-update_border_type(Panel, BorderType) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_border_type(Box, BorderType),
-    replace_box(Panel, Box1).
-  
-%% @doc Update color of outline: soliid, dashed, beveled 
+%% ***********************************************************
+%% Get text position 
+%% ***********************************************************
 
--spec update_border_color(Panel :: tuple(), BorderColor :: atom()) -> map().
+%% @doc Get text position
 
-update_border_color(Panel, BorderColor) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_border_color(Box, BorderColor),
-    replace_box(Panel, Box1).
-    
-%% @doc Update margin: space around text when displayed in outlined panel
+-spec get_text_position(PanelMap :: map()) -> tuple().
 
--spec update_text_margin(Panel :: tuple(), Points :: integer()) -> map().
+get_text_position(PanelMap) ->
+   {X, _Y} = maps:get(position, PanelMap),
+   NextLine = maps:get(next_line, PanelMap),
+   ep_lib:impose_text({X, NextLine}, letter).
 
-update_text_margin(Panel, Points) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_text_margin(Box, Points),
-    replace_box(Panel, Box1).
 
-%% @doc update background_color
-%%      white, silver, gray, black, maroon, red, fuchsia, purple
-%%      lime, green, olive, yellow, navy, blue, teal, aqua
+%% ***********************************************************
+%% Get size 
+%% ***********************************************************
+
+%% @doc Get size
+
+-spec get_size(PanelMap :: map()) -> tuple().
+
+get_size(PanelMap) ->
+   maps:get(size, PanelMap).
+
+
+%% ***********************************************************
+%% Get radius 
+%% ***********************************************************
+
+%% @doc Get radius
+
+-spec get_radius(PanelMap :: map()) -> tuple().
+
+get_radius(PanelMap) ->
+   maps:get(radius, PanelMap).
+
+
+%% ***********************************************************
+%% Get next line 
+%% ***********************************************************
+
+%% @doc Get next line
+
+-spec get_next_line(PanelMap :: map()) -> integer().
+
+get_next_line(PanelMap) ->
+   maps:get(next_line, PanelMap).
+
+
+%% ***********************************************************
+%% Get available 
+%% ***********************************************************
+
+%% @doc Get available 
+
+-spec get_available(PanelMap :: map()) -> integer().
+
+get_available(PanelMap) ->
+   {_X, Y} = maps:get(position, PanelMap),
+   {_Width, Height} = maps:get(size, PanelMap),
+   NextLine         = maps:get(next_line, PanelMap),
+   (Y + Height) - NextLine.
+
+   
+%% ***********************************************************
+%% Get NLines 
+%% ***********************************************************
+
+%% @doc Get NLines 
+
+-spec get_nlines(TypeStyle  :: atom(),
+                 Tag        :: atom(),
+                  PanelMap  :: map()) -> integer().
+
+get_nlines(TypeStyle, Tag, PanelMap) ->
+   Available = get_available(PanelMap),
+   Leading   = ep_typespec:get_leading(TypeStyle, Tag),
+   Available div Leading.
+
+
    
 
--spec update_background_color(Panel :: tuple(), BGColor :: atom()) -> map().
- 
-update_background_color(Panel, BGColor) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_background_color(Box, BGColor),
-    replace_box(Panel, Box1).
-    
-%% @doc update background_color
-%%      white, silver, gray, black, maroon, red, fuchsia, purple
-%%      lime, green, olive, yellow, navy, blue, teal, aqua
-    
--spec update_text_color(Panel :: tuple(), TextColor :: atom()) -> map().
-
-update_text_color(Panel, TextColor) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_text_color(Box, TextColor),
-    replace_box(Panel, Box1).
-
-%% @doc Update stroke type; close, stroke, close_stroke, fill, 
-%% fill_even_odd, fill_stroke, fill_then_stroke, fill_stroke_even_odd,
-%% close_fill_stroke, close_fill_stroke_even_odd, endpath
-%% SEE eg_pdf_op:path/1
-    
--spec update_stroke(Panel :: tuple(), Stroke :: atom()) -> map().
-
-update_stroke(Panel, Stroke) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_stroke(Box, Stroke),
-    replace_box(Panel, Box1).
-   
-%% @doc Update stroke color; white, silver, gray, black, maroon, 
-%% red, fuchsia, purple lime, green, olive, yellow, navy, blue, teal, aqua
-
--spec update_stroke_color(Panel :: tuple(), Color :: atom()) -> map().
-
-update_stroke_color(Panel, StrokeColor) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_stroke_color(Box, StrokeColor),
-    replace_box(Panel, Box1).
-
-%% @doc Update fill color; white, silver, gray, black, maroon, 
-%% red, fuchsia, purple lime, green, olive, yellow, navy, blue, teal, aqua
-
--spec update_fill_color(Panel :: tuple(), Color :: atom()) -> map().
-    
-update_fill_color(Panel, FillColor) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_fill_color(Box, FillColor),
-    replace_box(Panel, Box1).
-    
-%% @doc Update width of paragraph indent of text in panel 
-
--spec update_indent(Box :: tuple(), Indent :: integer()) -> map().
-
-update_indent(Panel, Indent) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_indent(Box, Indent),
-    replace_box(Panel, Box1).
-    
-%% @doc Update action to take when text overflows panel 
-
-update_continue(Panel, Continue) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:update_continue(Continue, Box),
-    replace_box(Panel, Box1).
 
 %% ***********************************************************
-%% Panel position and dimensions 
+%% ***********************************************************
+%% Get border 
 %% ***********************************************************
 
-%% @doc Return upper-left xy coordinates of panel 
+%% @doc Get border
 
--spec position(Panel :: tuple()) -> tuple().
+-spec get_border(PanelMap :: map()) -> tuple().
 
-position(Panel) ->
-    Box = get_box(Panel),
-    ep_box:position(Box).
+get_border(PanelMap) ->
+   maps:get(border, PanelMap).
 
-%    Box1 = ep_box:position(Box),
-%    replace_box(Panel, Box1).
-    
-%% @doc Return x, y, width, height 
-
--spec dimensions(Panel :: tuple()) -> tuple().
-
-dimensions(Panel) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:dimensions(Box),
-    replace_box(Panel, Box1).
-    
-%% @doc Return print specs of panel
-
--spec box_spec(Panel :: tuple()) -> tuple().
-
-box_spec(Panel) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:box_spec(Box),
-    replace_box(Panel, Box1).
 
 %% ***********************************************************
-%% Border flag 
+%% Get border style 
 %% ***********************************************************
 
-%% @doc Test if background flag is set; if so draw outline
-%%      around text and display background color 
+%% @doc Get border style
 
--spec if_border(Panel :: tuple()) -> boolean().
+-spec get_border_style(PanelMap :: map()) -> tuple().
 
-if_border(Panel) ->
-    Box = get_box(Panel),
-    ep_box:if_border(Box).
+get_border_style(PanelMap) ->
+   maps:get(border_style, PanelMap).
 
-%% @doc Set backround flag true 
-
--spec show_border(Panel :: tuple()) -> map().
-
-show_border(Panel) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:show_border(Box),
-    replace_box(Panel, Box1).
-
-%% @doc Set backround flag false 
-
--spec hide_border(Box :: tuple()) -> map().
-
-hide_border(Panel) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:hide_border(Box),
-    replace_box(Panel, Box1).
 
 %% ***********************************************************
-%% Panel dimensions 
-%% PDF assumes that 0, 0 XY coordinate is lower-left
-%% For convenience sake, we'll assume upper left here
-%% but the y will have to be inverted when we print
+%% Get border color 
 %% ***********************************************************
 
-%% @doc return outer box dimensions 
+%% @doc Get border color
 
--spec outer_box(Panel :: tuple()) -> tuple().
+-spec get_border_color(PanelMap :: map()) -> tuple().
 
-outer_box(Panel) ->
-    Box = get_box(Panel),
-    ep_box:outer_box(Box).
+get_border_color(PanelMap) ->
+   maps:get(border_color, PanelMap).
 
-%% @doc return inner box dimensions 
-
--spec inner_box(Panel :: tuple()) -> tuple().
-
-inner_box(Panel) ->
-    Box = get_box(Panel),
-    ep_box:inner_box(Box).
-
-%% @doc return text box dimensions 
-
--spec text_box(Panel :: tuple()) -> tuple().
-
-text_box(Panel) ->
-    Box = get_box(Panel),
-    ep_box:text_box(Box).
 
 %% ***********************************************************
-%%  Out-of-bounds warnings 
+%% Get margin 
 %% ***********************************************************
 
-%% @doc Return  if X or Y are out-of-bounds of panel 
+%% @doc Get margin
 
-% out_of_bounds(Panel, X, Y) ->
-%    Warnings = [],
-%    XLeft  = x(Panel),
-%    XRight = end_x(Panel),
-%    if  X < XLeft  -> Warnings1 = [{warning, x_out_of_bounds_left}| Warnings];
-%        X > XRight -> Warnings1 = [{warning, x_out_of_bounds_right}| Warnings];
-%        true       -> Warnings1 = Warnings 
-%    end,
-%    YTop    = y(Panel),
-%    Height  = height(Panel),
-%    YBottom = YTop + Height,
-%    if  Y < YTop    -> Warnings2 = [{warning, y_out_of_bounds_top}| Warnings1];
-%        Y > YBottom -> Warnings2 = [{warning, y_out_of_bounds_bottom}| Warnings1];
-%        true        -> Warnings2 = Warnings1 
-%    end,
-%    case length(Warnings2) == 0 of
-%        true  -> ok;
-%        false -> Warnings2
-%    end.
-        
-%% ***********************************************************
-%%  Panel modification functions 
-%% ***********************************************************
+-spec get_margin(PanelMap :: map()) -> tuple().
 
-%% @doc Clip panel top, right, bottom, or left
+get_margin(PanelMap) ->
+   maps:get(margin, PanelMap).
 
--spec clip(Panel :: map(), Edge :: atom(), N :: integer()) -> map().
-
-
-clip(Panel, top, Points) ->
-    Box   = get_box(Panel),
-    Box1  = ep_box:clip(Box, top, Points),
-    replace_box(Panel, Box1);
-
-clip(Panel, right, Points) ->
-    Box  = get_box(Panel),
-    Box1 = ep_box:clip(Box, right, Points),
-    replace_box(Panel, Box1);
-
- clip(Panel, bottom, Points) ->
-    Box  = get_box(Panel),
-    Box1 = ep_box:clip(Box, bottom, Points),
-    replace_box(Panel, Box1);
-
-clip(Panel, left, Points) ->
-    Box  = get_box(Panel),
-    Box1 = ep_box:clip(Box, left, Points),
-    replace_box(Panel, Box1).
-
-%% @doc Shift panel up, down, right, or left 
-
--spec shift(Panel :: map(), Direction :: atom(), N :: integer()) -> map().
-
-shift(Panel, up, N) ->
-    Box  = get_box(Panel),
-    Box1 = ep_box:shift(Box, up, N),
-    replace_box(Panel, Box1);
-
-shift(Panel, down, N) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:shift(Box, down, N),
-    replace_box(Panel, Box1);
-
-shift(Panel, right, N) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:shift(Box, right, N),
-    replace_box(Panel, Box1);
-
-shift(Panel, left, N) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:shift(Box, left, N),
-    replace_box(Panel, Box1).
 
 %% ***********************************************************
-%% Print support fuctions 
+%% Get measure 
+%% ***********************************************************
+
+%% @doc Get measure 
+
+-spec get_measure(PanelMap :: map()) -> integer().
+
+get_measure(PanelMap) ->
+   {Width, _Height} =maps:get(size, PanelMap),
+   Margin  = maps:get(margin, PanelMap),
+   Width - (Margin * 2).
+
+
+%% ***********************************************************
+%% Get indent 
+%% ***********************************************************
+
+%% @doc Get indent 
+
+-spec get_indent(PanelMap :: map()) -> integer().
+
+get_indent(PanelMap) ->
+   maps:get(indent, PanelMap).
+
+
 %% ***********************************************************
 
 
-%% @doc Return panel background parameters 
-
--spec background(Panel :: map()) -> tuple().
-
-background(Panel) ->
-    Box = get_box(Panel),
-    ep_box:background(Box).
-
-%% @doc return corner coordiates of box
-
--spec corners(Panel :: map()) -> tuple().
-
-corners(Panel) ->
-    Box = get_box(Panel),
-    ep_box:corners(Box).
 
 
 
-
-    
 %% ***********************************************************
-%% Print panels 
+%% Get jump prompt 
 %% ***********************************************************
 
--spec print_panel(Panel :: map(), PaperStock :: atom(),
-      OFile :: string()) -> ok.
+%% @doc Get jump prompt 
 
-print_panel(Panel, PaperStock, OFile) ->
-    Box = get_box(Panel),
-    Box1 = ep_box:v_flip_box(Box, PaperStock),
-    print_box(Box1, PaperStock, OFile).
+-spec get_jump_prompt(PanelMap :: map()) -> tuple().
 
-print_box(Box, PaperStock, OFile) ->
-    Box1 = ep_box:v_flip_box(Box, PaperStock),
-    PDF  = eg_pdf:new(),
-    ep_show_grid:show_grid(PDF, PaperStock),
-    ep_box:print_box(Box1, PaperStock, OFile).
+get_jump_prompt(PanelMap) ->
+   maps:get(jump_prompt, PanelMap).
 
 
+%% ***********************************************************
+%% Update id 
+%% ***********************************************************
+
+%% @doc Update panel id
+
+-spec update_id(Id       :: tuple(),
+                PanelMap :: map()) -> map().
+
+update_id(ID, PanelMap) ->
+   maps:put(id, ID, PanelMap).
 
 
+%% ***********************************************************
+%% Update 
+%% ***********************************************************
+
+%% @doc Update position
+
+-spec update_position(Position       :: tuple(),
+                      PanelMap :: map()) -> map().
+
+update_position(Position, PanelMap) ->
+   maps:put(id, Position, PanelMap).
 
 
+%% ***********************************************************
+%% Update size 
+%% ***********************************************************
+
+%% @doc Update size
+
+-spec update_size(Size     :: tuple(),
+                  PanelMap :: map()) -> map().
+
+update_size(Size, PanelMap) ->
+   maps:put(size, Size, PanelMap).
+
+
+%% ***********************************************************
+%% Update radius 
+%% ***********************************************************
+
+%% @doc Update radius
+
+-spec update_radius(Radius   :: tuple(),
+                    PanelMap :: map()) -> map().
+
+update_radius(Radius, PanelMap) ->
+   maps:put(radius, Radius, PanelMap).
+
+
+%% ***********************************************************
+%% Update next line 
+%% ***********************************************************
+
+%% @doc Update next line 
+
+-spec update_next_line(NextLine  :: tuple(),
+                       PanelMap  :: map()) -> map().
+
+update_next_line(NextLine, PanelMap) ->
+   maps:put(next_line, NextLine, PanelMap).
+
+
+%% ***********************************************************
+%% Update border 
+%% ***********************************************************
+
+%% @doc Update border
+
+-spec update_border(Border   :: tuple(),
+                    PanelMap :: map()) -> map().
+
+update_border(Border, PanelMap) ->
+   maps:put(border, Border, PanelMap).
+
+
+%% ***********************************************************
+%% Update border style 
+%% ***********************************************************
+
+%% @doc Update border style
+
+-spec update_border_style(BorderStyle  :: tuple(),
+                          PanelMap     :: map()) -> map().
+
+update_border_style(BorderStyle, PanelMap) ->
+   maps:put(border_style, BorderStyle, PanelMap).
+
+
+%% ***********************************************************
+%% Update border color 
+%% ***********************************************************
+
+%% @doc Update border color
+
+-spec update_border_color(BorderColor  :: tuple(),
+                          PanelMap     :: map()) -> map().
+
+update_border_color(BorderColor, PanelMap) ->
+   maps:put(border_color, BorderColor, PanelMap).
+
+
+%% ***********************************************************
+%% Update background color 
+%% ***********************************************************
+
+%% @doc Update background color
+
+-spec update_background_color(BackgroundColor  :: tuple(),
+                              PanelMap         :: map()) -> map().
+
+update_background_color(BackgroundColor, PanelMap) ->
+   maps:put(background_color, BackgroundColor, PanelMap).
+
+
+%% ***********************************************************
+%% Updatte margin 
+%% ***********************************************************
+
+%% @doc Update margin
+
+-spec update_margin(Margin   :: tuple(),
+                    PanelMap :: map()) -> map().
+
+update_margin(Margin, PanelMap) ->
+   maps:put(margin, Margin, PanelMap).
+
+
+%% ***********************************************************
+%% Update jump prompt 
+%% ***********************************************************
+
+%% @doc Update jump prompt 
+
+-spec update_jump_prompt(JumpPrompt  :: tuple(),
+                         PanelMap    :: map()) -> map().
+
+update_jump_prompt(JumpPrompt, PanelMap) ->
+   maps:put(jump_prompt, JumpPrompt, PanelMap).
+
+
+%% ***********************************************************
+%% Default panel 
+%% ***********************************************************
+
+%% @doc Create default panel 
+
+-spec default_panel() -> map().
+
+default_panel() ->
+   Id   = {1, 1, top},
+   Position = {72, 72},
+   Size     = {450, 300},
+   create(Id, Position, Size).
 

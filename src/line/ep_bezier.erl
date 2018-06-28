@@ -49,7 +49,6 @@ create(Pt1, Pt2, Pt3, Pt4) ->
     , to           => Pt4   
     , width        => ?DEFAULT_WIDTH
     , color        => ?DEFAULT_COLOR
-    , format       => ?DEFAULT_FORMAT
     }.
 
 

@@ -124,7 +124,6 @@ init_pdf_context()->
 
 %% @doc Spawn pdf building process
 new()->
-    io:format("New pdf~n",[]),
     {ok, PDF} = start_link( [init_pdf_context(), <<>>] ),
     PDF.
 
@@ -561,22 +560,9 @@ append_stream(PID, String)->
     gen_server:cast(PID, {stream, {append, String}}).
 
 
-
-
-%% fontName(Font) ->
-%%     case eg_pdf_assemble:fontType(Font) of
-%% 	{_,Index} ->
-%% 	    Index;
-%% 	not_pdf ->
-%% 	    io:format("Font:~s is missing using Times-Roman~n", [Font]),
-%% 	    1
-%%     end.
-
 default_face() ->
     eg_richText:mk_face("Times-Roman", 12, true, default, 0).
 
-%% all_fonts() ->
-%%     eg_font_map:all_fonts().
 
 inBuiltFonts() ->
     ["Helvetica","Helvetica-Bold","Helvetica-Oblique",
@@ -734,6 +720,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 build_pdf(Info, Fonts, Images, Pages, MediaBox, ProcSet) ->
     %% io:format("build pdf Fonts=~p~n",[Fonts]),
+
     {Free0,XObjects,O0s}  = eg_pdf_image:mk_images(Images, 1, [], []),
     {Free,Fonts1,O1s}  = mk_fonts(Fonts, Free0, [], []),
     PageTree = Free,
@@ -754,6 +741,7 @@ mk_fonts([], I, Fs, Os) ->
 	      end, lists:reverse(Fs))}},
     {I+1, {ptr,I,0}, lists:reverse([A|Os])};
 mk_fonts([Handler|T], I, Fs, E) ->
+
     %% io:format("I need the font:~p~n",[Handler]),
     Index = Handler:index(),
     Alias = "F" ++ eg_pdf_op:i2s(Index),

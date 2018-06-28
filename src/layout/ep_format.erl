@@ -10,7 +10,7 @@
 
 -module (ep_format).
 
--export([formats/0]).
+-export([formats/0, format_list/0]).
 -export([pagesize_points/1, pagesize_inches/1, pagesize_picas/1]).
 -export([page_width/1, page_height/1]).
 -export([page_offsets/2]).
@@ -20,6 +20,9 @@
 
 formats() ->
      [element(1, Format) || Format <- format_list()].
+
+%% Note: rp(List) to see full list
+
 
 %% @doc Return width and height of standard page formats 
 %%      in points

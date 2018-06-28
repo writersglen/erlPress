@@ -10,7 +10,7 @@
 %%%   File:         ep_typespec.erl
 %%%   Description:  Type specification functions 
 %%%   Note:         erlguten refers to "tagmaps." Since they are not
-%%%                 maps in the contemporary Erlang since, we're 
+%%%                 maps in the contemporary Erlang sense, we're 
 %%%                 changed the term "tagmap" to "typespec"
 %%% @end
 
@@ -19,106 +19,133 @@
 
 -module (ep_typespec).
 
--export ([default/1, default_helvetica/1]). 
--export ([tag_list/1, tag_map/1, get_face/2, get_font/2]).
+-export([update_panelmap/3]).
+-export([get_spec/2, get_fontmap/2, list_faces/2, get_face/3]).
+-export([get_face/2]).
+-export([face_map/2, get_leading/2, get_justify/2, get_indent/2]).
+-export ([get_font/3, get_fontsize/3]).
 
 
-%% ***********************************************************************
-%% Type specifications
-%% ***********************************************************************
 
-%% @doc Default type specification
+%% @doc Return typefaces, leading, jusitification, and indentation
 
--spec default(FontSize :: integer()) -> tuple().
+-spec update_panelmap(Typestyle :: tuple(),
+                      Tag       :: atom(),
+                      BeadMap   :: map()) -> map().
 
-default(FontSize) ->
-   {[p],
-    [tag_face(default, "Times-Roman", FontSize),
-     tag_face(em,      "Times-Italic", FontSize),
-     tag_face(code,    "Courier", FontSize), 
-     tag_face(b,       "Times-Bold", FontSize),
-     tag_face(hb,      "Helvetica-Bold", FontSize),
-     tag_face(helv,    "Helvetica", FontSize)
-    ]}.
+update_panelmap(TypeStyle, Tag, PanelMap) ->
+   {Faces, Leading, Justify, Indent} = get_spec(TypeStyle, Tag), 
+   PanelMap1     = maps:put(faces, Faces, PanelMap),
+   PanelMap2     = maps:put(leading, Leading, PanelMap1),
+   PanelMap3     = maps:put(justify, Justify, PanelMap2),
+   maps:put(indent, Indent, PanelMap3).
+   
 
+%% @doc Return typefaces, leading, jusitification, and indentation
 
-%% @doc Default helvetica type specification
+-spec get_spec(Typestyle :: tuple(),
+              Tag       :: atom()) -> tuple().
 
--spec default_helvetica(FontSize :: integer()) -> tuple().
+get_spec(TypeStyle, Tag) ->
+   case TypeStyle of
+      report  -> ep_typestyle:report(Tag);
+      _       -> ep_typestyle:report(Tag)
+   end.
 
+%% @doc Return list of faces
 
-default_helvetica(FontSize) ->
-   {[p],
-    [tag_face(default, "Helvetica", FontSize),
-     tag_face(em,      "Helvetica-Oblique", FontSize),
-     tag_face(code,    "Courier", FontSize), 
-     tag_face(b,       "Helvetica-Bold", FontSize),
-     tag_face(hb,      "Helvetica-Bold", FontSize),
-     tag_face(helv,    "Helvetica", FontSize)
-    ]}.
+-spec get_fontmap(Typestyle :: tuple(),
+                  Tag       :: atom()) -> tuple().
 
+get_fontmap(TypeStyle, Tag) ->
+   Typespecs = get_spec(TypeStyle, Tag),
+   element(1, Typespecs).
 
-%% ***********************************************************************
-%% ***********************************************************************
-%% Type specification functions
-%% ***********************************************************************
+% -spec list_faces(TypeSpec :: tuple()) -> list().
 
+list_faces(TypeStyle, Tag) ->
+    Faces = get_fontmap(TypeStyle, Tag),
+    element(2, Faces).
 
-%% @doc Return tagged type face
+%% @doc Given type style, style tag and face tag, return typeface 
 
--spec tag_face(Tag :: atom(), Font :: string(),
-               FontSize :: integer()) -> tuple().
+-spec get_face(TypeStyle :: tuple(),
+               StyleTag  :: atom(),
+               FaceTag   :: atom()) -> tuple().
 
-tag_face(Tag, Font, FontSize) ->
-    FaceMap = ep_face:create(Font, FontSize),
-    {Tag, ep_face:make_face(FaceMap)}.
-
-
-%% @doc Given type specification, return list of tagged type faces
-
--spec tag_list(TypeSpec :: tuple()) -> list().
-
-tag_list(TypeSpec) ->
-    element(2, TypeSpec).
+get_face(TypeStyle, StyleTag, FaceTag) ->
+   FaceList = list_faces(TypeStyle, StyleTag),
+   TaggedFace = lists:keyfind(FaceTag, 1, FaceList),
+   element(2, TaggedFace).
 
 
-%% @doc Convert list of type specifications into a tag map
 
--spec tag_map(TypeSpec :: tuple()) -> map().
-
-tag_map(TypeSpec) ->
-    TagList = tag_list(TypeSpec),
-    maps:from_list(TagList).
+get_face(Tag, FontMap) ->
+   FaceList = element(2, FontMap),
+   TaggedFace = lists:keyfind(Tag, 1, FaceList),
+   element(2, TaggedFace).
 
 
-%% @doc Given tag and type specification, return type face
+%% @doc Return face map 
 
--spec get_face(Tag :: atom(), TypeSpec :: tuple()) -> tuple().
- 
-get_face(Tag, TypeSpec) ->
-    TagMap = tag_map(TypeSpec),
-    Result = maps:find(Tag, TagMap),
-    case Result of
-        error -> default_face();
-        _     -> maps:get(Tag, TagMap)
-    end.
+-spec face_map(TypeSyle :: tuple(),
+               Tag      :: atom()) -> map().
+
+face_map(TypeStyle, Tag) ->
+    FaceList = list_faces(TypeStyle, Tag),
+    maps:from_list(FaceList).
 
 
-default_face() ->
-   eg_pdf:default_face().
+%% @doc Return leading 
+
+-spec get_leading(TypeSyle :: tuple(),
+                  Tag      :: atom()) -> map().
+
+get_leading(TypeStyle, Tag) ->
+   Typespecs = get_spec(TypeStyle, Tag),
+   element(2, Typespecs).
 
 
-%% @doc Given tag and type specification, return font
+%% @doc Return justification 
 
--spec get_font(Tag :: atom(), TypeSpec :: tuple()) -> string().
+-spec get_justify(TypeSyle :: tuple(),
+                  Tag      :: atom()) -> map().
 
-get_font(Tag, TypeSpec) ->
-    Face = get_face(Tag, TypeSpec),
+get_justify(TypeStyle, Tag) ->
+   Typespecs = get_spec(TypeStyle, Tag),
+   element(3, Typespecs).
+
+
+%% @doc Return indent 
+
+-spec get_indent(TypeSyle :: tuple(),
+                 Tag      :: atom()) -> map().
+
+get_indent(TypeStyle, Tag) ->
+   Typespecs = get_spec(TypeStyle, Tag),
+   element(4, Typespecs).
+
+
+%% @doc Return erlPress font 
+
+-spec get_font(TypeStyle :: tuple(),
+               StylTag   :: atom(),
+               FaceTag   :: atom())-> atom().
+
+get_font(TypeStyle, StyleTag, FaceTag) ->
+    Face = get_face(TypeStyle, StyleTag, FaceTag),
     element(2, Face).
 
 
+%% @doc Return fontsize
 
+-spec get_fontsize(TypeStyle :: tuple(),
+                   StylTag   :: atom(),
+                   FaceTag   :: atom()) -> atom().
 
+get_fontsize(TypeStyle, StyleTag, FaceTag) ->
+    Face = get_face(TypeStyle, StyleTag, FaceTag),
+    element(3, Face).
 
 
 

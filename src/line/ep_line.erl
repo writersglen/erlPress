@@ -46,7 +46,6 @@ create(From, To) ->
     , width        => ?DEFAULT_WIDTH
     , dash         => ?DEFAULT_DASH
     , color        => ?DEFAULT_COLOR
-    , format       => ?DEFAULT_FORMAT
     }.
 
 %% ***********************************************************

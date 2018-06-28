@@ -18,7 +18,9 @@
 -export ([list_userguide_images/0, get_userguide_image/1]).
 -export ([list_userguide_text/0, get_userguide_text/1]).
 -export([today/0, months/0]).
--export([impose_xy/3, impose_line/3, impose_lines/3, v_flip/2, within/3]).
+-export([impose_xy/3, impose_line/3, impose_lines/3]).
+-export([impose_box/3, impose_text/2]). 
+-export([v_flip/2, within/3]).
 
 %%% *********************************************************      
 %%% Create page id
@@ -154,6 +156,20 @@ impose_lines(Lines, PageXY, PaperStock) ->
    List  = [impose_line(Line, PageXY, PaperStock) || Line <- Lines],
    lists:reverse(List).
 
+impose_box(Position, Size, PaperStock) ->
+   {X, Y} = Position,
+   {_Width, Height} = Size,
+   Y1 = v_flip(Y, PaperStock),
+   Y2 = Y1 - Height,
+   {X, Y2}.
+
+impose_text(Position, PaperStock) ->
+   {X, Y} = Position,
+   Y1 = v_flip(Y, PaperStock),
+   Y2 = Y1,
+   {X, Y2}.
+
+   
 
 -spec v_flip(Y :: integer(), PaperStock ::  atom()) -> integer().
 

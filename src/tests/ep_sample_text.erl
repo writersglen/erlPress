@@ -14,7 +14,7 @@
 
 -module (ep_sample_text).
 
--export ([times_14/0, helvetica_10/0, the_road_not_taken/0]).
+-export ([times_14/0, helvetica_10/0, the_road_not_taken/0, article/0]).
 
 %% @doc  Display Times-Roman 14pt text
 %% NOTE: Must apply ep_block:default_14/0 for this to 
@@ -22,7 +22,7 @@
 
 
 times_14() ->
-    "<p>This is normal text set in 14/21 Times Roman.
+"<p>This is normal text set in 14/21 Times Roman.
 It includes <em>emphasized terms,</em> set in Times-Italic. The TeX
 hyphenation algorithm is implemented.  The term <code>{person, 
 \"Joe\"}</code> is an Erlang term.
@@ -57,3 +57,23 @@ And be one traveler, long I stood
 And looked down one as far as I could
 To where it bent in the undergrowth;</p>
      <p> - <em>Robert Frost</em></p>".
+
+
+article() ->
+"<h1>This is a headline</h1>
+<h2>This is a deck</h2>
+<p>    </p>
+<p>This is normal text set in 14/21 Times Roman.
+It includes <em>emphasized terms,</em> set in Times-Italic. The TeX
+hyphenation algorithm is implemented.  The term <code>{person, 
+\"Joe\"}</code> is an Erlang term.</p>
+<p>    </p>
+<h3>This is a subhead</h3>
+<p>The variable <code>X</code>, was immediately followed by
+a comma. The justification algorithm does proper <em>kerning</em>,
+which is more than <em>Microsoft Word</em> can do. AWAY is
+correctly kerned! Erlang terms <code>{like, this}</code>
+are typeset in <em>courier.</em></p>".
+
+
+
