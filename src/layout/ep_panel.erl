@@ -46,12 +46,13 @@
 -export([get_available/1, get_nlines/3, get_border/1]).
 -export([get_border_style/1, get_border_color/1, get_margin/1]).
 -export([get_measure/1, get_indent/1]).
--export([get_jump_prompt/1]).
+-export([get_jump_prompt/1, get_typestyle/1]).
 
 -export([update_id/2, update_position/2, update_size/2, update_radius/2]).
 -export([update_next_line/2]).
 -export([update_border/2, update_border_style/2, update_border_color/2]).
 -export([update_background_color/2, update_margin/2, update_jump_prompt/2]).
+-export([update_typestyle/2]).
 -export([default_panel/0]).
 
 
@@ -97,6 +98,7 @@ create(ID, Position, Size) ->
      , background_color  => ?BACKGROUND_COLOR
      , margin            => ?MARGIN
      , indent            => ?INDENT
+     , typestyle         => ?TYPESTYLE
      , jump_prompt       => ?JUMP_PROMPT
      }. 
 
@@ -111,7 +113,7 @@ init_next_line(Position) ->
 
 panel(PDF, Job, PanelMap) ->
    PanelName = get_panel_name(PanelMap),
-   io:format("~nPasting panel -  Name: ~p~n", [PanelName]),
+   io:format("~n^^^^^^^ Pasting panel - Name: ~p~n", [PanelName]),
    Position        = ep_job:flip_box(Job, PanelMap),
    Size            = maps:get(size, PanelMap),
    
@@ -126,7 +128,7 @@ panel(PDF, Job, PanelMap) ->
    eg_pdf:set_fill_color(PDF, BackgroundColor),
    eg_pdf:round_rect(PDF, Position, Size, Radius),
    eg_pdf:path(PDF, fill_stroke),
-   io:format("Leaving panel/3 - Panel Name: ~p~n~n", [PanelName]),
+   io:format("^^^^^^^ Leaving panel~n~n"),
    ok.
 
 
@@ -371,6 +373,19 @@ get_jump_prompt(PanelMap) ->
 
 
 %% ***********************************************************
+%% Get typestyle 
+%% ***********************************************************
+
+
+%% @doc Get typestyle 
+
+-spec get_typestyle(PanelMap :: map()) -> tuple().
+
+get_typestyle(PanelMap) ->
+   maps:get(typestyle, PanelMap).
+
+
+%% ***********************************************************
 %% Update id 
 %% ***********************************************************
 
@@ -511,6 +526,19 @@ update_margin(Margin, PanelMap) ->
 
 update_jump_prompt(JumpPrompt, PanelMap) ->
    maps:put(jump_prompt, JumpPrompt, PanelMap).
+
+
+%% ***********************************************************
+%% Update typestyle 
+%% ***********************************************************
+
+%% @doc Update typestyle 
+
+-spec update_typestyle(TypeStyle  :: atom(),
+                       PanelMap   :: map()) -> map().
+
+update_typestyle(TypeStyle, PanelMap) ->
+   maps:put(typestyle, TypeStyle, PanelMap).
 
 
 %% ***********************************************************

@@ -32,8 +32,8 @@ run()->
      ep_show_grid:show_grid(PDF, letter),
      
      Panel1 = ep_panel:create({1, 1, top}, {72, 72}, {420, 200}),
-     Panel2 = ep_panel:create({1, 2, continue}, {72, 272}, {200, 300}),
-     Panel3 = ep_panel:create({1, 3, final}, {272, 272}, {220, 200}),
+     Panel2 = ep_panel:create({1, 2, continue}, {72, 272}, {200, 200}),
+     Panel3 = ep_panel:create({1, 3, final}, {292, 272}, {200, 200}),
      Beads  = [Panel1, Panel2, Panel3],
      Copy   = ep_sample_text:article(),
      ArticleMap = ep_article:create(Copy, Beads),

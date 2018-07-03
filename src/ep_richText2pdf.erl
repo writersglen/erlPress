@@ -63,10 +63,14 @@ dbg_io(_,_) -> ok.
 %%            source, which may only be used inside a 'text object' (chp 5.3 
 %%            in pdf reference manual 1.4 and 1.7)
 richText2pdf(PID, X, Y0, Type, Rot, Lines, Leading, Widths, Offsets) ->
+    io:format("Entering richText2pdf/9~n~n"),
+
+
     Y = Y0 - Leading,
     P = start(),
     P2 = case Type of
 	     justified ->
+               
 		 {_Cos, _Sin, P1} = init_rotation_matrix(X, Y0, Rot, P),
 		 make_justified(PID, X, Y, Leading, Lines, Offsets, Widths, P1);
 	     Style when Style == left_justified;
@@ -87,8 +91,11 @@ make_justified(PID, X, Y, _Leading, [H], [O|_], [W|_], P) ->
     line2pdf(PID, X+O,Y,H,W,last_line_justified, P);
 
 make_justified(PID, X, Y, Leading, [H | T], [O | _O1] = O0, [W | _W1] = W0, P) -> 
+
     {O2, W2} = last_offset_width(O0, W0),
-    P1 = line2pdf(PID, X + O, Y, H, W, justified, P),
+             
+%        line2pdf(PID, X,     Y, {richText, Line}, Len, Style, P) ->
+    P1 = line2pdf(PID, X + O, Y, H,                W,   justified, P),
     make_justified(PID, X, Y-Leading, Leading, T, O2, W2, P1).
 
 

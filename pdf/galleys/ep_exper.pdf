@@ -63,7 +63,7 @@ endobj
 endobj
 8 0 obj
 <<
-/Length  10448 
+/Length  10413 
 >>
 
 stream
@@ -841,17 +841,13 @@ ET
  [] 0 d
  0.00 0.00 0.00  RG
  0.86 0.86 0.86  rg
- 82 220  m 262 220  l 267.52 220 272 225.52 272 230  c
+ 82 320  m 262 320  l 267.52 320 272 325.52 272 330  c
 272 510  l 272 515.52 267.52 520 262 520  c
 82 520  l 77.52 520 72 515.52 72 510  c
-72 230  l 72 225.52 77.52 220 82 220  c
+72 330  l 72 325.52 77.52 320 82 320  c
   B  
 BT
- 1 0 0 1 72 520 Tm 20  -23 TD /F7 18 Tf 0 Tw 0 0 0 rg [(This)0( )0(is)0( )0(a)0( )0(subhead)0] TJ  
-ET
- 
-BT
- 1 0 0 1 72 497 Tm 50  -18 TD /F13 12 Tf 0.23 Tw 0 0 0 rg [(The)0( )0(v)25(ariable)0( )0] TJ /F3 12 Tf [(X)0] TJ /F13 12 Tf [(,)0( )0(w)10(as)0( )0(imme-)0] TJ -30  -18 TD -0.87 Tw [(diately)0( )0(follo)25(wed)0( )0(by)0( )0(a)0( )0(comma.)0( )0(The)0] TJ 0  -18 TD -0.25 Tw [(justif)20(ication)0( )0(algorithm)0( )0(does)0( )0(prop-)0] TJ 0  -18 TD 2.70 Tw [(er)0( )0] TJ /F10 12 Tf [(k)10(erning)0] TJ /F13 12 Tf [(,)0( )0(which)0( )0(is)0( )0(more)0( )0(than)0] TJ 0  -18 TD /F10 12 Tf 2.89 Tw [(Micr)45(osoft)0( )0(W)92(or)37(d)0] TJ /F13 12 Tf [( )0(can)0( )0(do.)0( )0(A)90(W)120(A)105(Y)0] TJ 0  -18 TD 0.54 Tw [(is)0( )0(correctly)0( )0(k)10(erned!)0( )0(Erlang)0( )0(terms)0] TJ 0  -18 TD /F3 12 Tf 1.65 Tw [({like,)0( )0(this})0] TJ /F13 12 Tf [( )0(are)0( )0(typeset)0( )0(in)0] TJ 0  -18 TD /F10 12 Tf 0 Tw [(courier)111(.)0] TJ  
+ 1 0 0 1 72 520 Tm 50  -18 TD /F7 18 Tf -3.69 Tw 0 0 0 rg [(This)0( )0(is)0( )0(a)0( )0(subhead)0] TJ -30  -18 TD /F13 12 Tf 7.73 Tw [(The)0( )0(v)25(ariable)0( )0] TJ /F3 12 Tf [(X)0] TJ /F13 12 Tf [(,)0( )0(w)10(as)0( )0(imme-)0] TJ 0  -18 TD -0.87 Tw [(diately)0( )0(follo)25(wed)0( )0(by)0( )0(a)0( )0(comma.)0( )0(The)0] TJ 0  -18 TD -0.25 Tw [(justif)20(ication)0( )0(algorithm)0( )0(does)0( )0(prop-)0] TJ 0  -18 TD 2.70 Tw [(er)0( )0] TJ /F10 12 Tf [(k)10(erning)0] TJ /F13 12 Tf [(,)0( )0(which)0( )0(is)0( )0(more)0( )0(than)0] TJ 0  -18 TD /F10 12 Tf 2.89 Tw [(Micr)45(osoft)0( )0(W)92(or)37(d)0] TJ /F13 12 Tf [( )0(can)0( )0(do.)0( )0(A)90(W)120(A)105(Y)0] TJ 0  -18 TD 0.54 Tw [(is)0( )0(correctly)0( )0(k)10(erned!)0( )0(Erlang)0( )0(terms)0] TJ 0  -18 TD /F3 12 Tf 1.65 Tw [({like,)0( )0(this})0] TJ /F13 12 Tf [( )0(are)0( )0(typeset)0( )0(in)0] TJ 0  -18 TD /F10 12 Tf 0 Tw [(courier)111(.)0] TJ  
 ET
  
 endstream
@@ -888,7 +884,7 @@ endobj
 13 0 obj
 <<
 /Creator  (Erlang) 
-/CreationDate (D:20180627190254)
+/CreationDate (D:20180702123035)
 /Producer  (erlguten-3.1) 
 /Author  (LRP) 
 /Title  (Test Elements) 
@@ -907,11 +903,11 @@ xref
 0000000507 00000 n 
 0000000578 00000 n 
 0000000763 00000 n 
-0000011267 00000 n 
-0000011336 00000 n 
-0000011389 00000 n 
-0000011460 00000 n 
-0000011514 00000 n 
+0000011232 00000 n 
+0000011301 00000 n 
+0000011354 00000 n 
+0000011425 00000 n 
+0000011479 00000 n 
 trailer
 <<
 /Size 14
@@ -919,5 +915,5 @@ trailer
 /Info 13 0 R
 >>
 startxref
-11732
+11697
 %%EOF

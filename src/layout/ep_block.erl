@@ -35,7 +35,7 @@
 
 -module (ep_block).
 
--export([block/3, line_specs/2, normalize/2 ]).
+-export([block/3, line_specs/2, normalise/2 ]).
 -export([delete_nl/1, parse/1, tag/1, get_tag/1]).
 -export([parsed_text2xml/1]).
 % -export([block/11]).
@@ -143,11 +143,7 @@ block2(PDF, [{xml, Xml}], TypeSpec, Boxes) ->
 %   Justification = ep_typespec:justification(TypeSpec),
 %   TagMap        = ep_typespec:tag_map(TypeSpec),
     ensure_fonts_are_loaded(PDF, TagMap),
-
     Norm = eg_xml2richText:normalise_xml(Xml, TagMap),
-
-
-
 
     {p, _, RichText} = Norm,
    Vacancies = ep_panel:available_lines(Box, TypeSpec),
@@ -176,7 +172,7 @@ ensure_fonts_are_loaded(PDF, {_,TagMap}) ->
 
 
 
-normalize(Xml, TagMap) ->
+normalise(Xml, TagMap) ->
     Norm = eg_xml2richText:normalise_xml(Xml, TagMap),
 %    io:format("Norm: ~p~n~n", [Norm]),
     Norm.
