@@ -66,6 +66,8 @@ dbg_io(_,_) -> ok.
 
 %% ----------------------------------------------------------------------------
 %% @doc Default to english (Great Britain) style linebreaks
+%%      RT: RichText
+%%      TW: {Justification, Widths}
 %% @end------------------------------------------------------------------------
 
 break_richText(RT, TW) ->
@@ -82,7 +84,6 @@ break_richText(RT, TW) ->
 %%       Widths  = [integer()] = lengths of the lines
 %%       Lines   = [richText()], RT split into lines 
 %%       Widths' = remaining Widths values
-%%       Spill   =
 %%
 %%       justified    = Optimally break each line depending upon the widths
 %%                      doing hyphenation where possible and required
@@ -108,6 +109,9 @@ break_richText({richText, T}, {justified, W}, Rules) ->
     text2para_widths(T, justified, W, Rules);
 
 %% next two phrases added by LRP
+
+break_richText({richText, T}, {spill, W}, Rules) -> 
+    text2para_widths(T, spill, W, Rules);
 
 break_richText({richText, T}, {left_justified, W}, Rules) -> 
     text2para_widths(T, ragged, W, Rules);

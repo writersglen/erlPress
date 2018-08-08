@@ -13,7 +13,6 @@
 %%% ==========================================================================
 
 
-
 -module(ep_show_n_tell).
 
 -export([run/0]).
@@ -26,71 +25,80 @@ run()->
     PDF = eg_pdf:new(),
     ep_page:first_page(PDF),  % ****** Page1
 
+    %% Page 1 Make up
 
+   Copy                        = ep_sample_text:erlpress(),
+   PanelMap                    = ep_panel:create({1, 1, test}, {72, 20}, {460, 705}),
+   PanelMap1                   = ep_panel:reveal(PanelMap),
+   {Paste, _Spill, _PanelMap2} = ep_text_block:fit_copy(Copy, PanelMap1),
+   ok                          = ep_paste_lib:paste_panel(PDF, Job, PanelMap1),
+   ok                          = ep_paste_lib:paste(PDF, Paste, [], PanelMap1),
 
-    % ********** Page 1 makeup
+    ep_page:next_page(PDF),    % ****** Page 2
    
-    Text1         = "Best of erlPress",
-    Font1         = "Helvetica",
-    TextPosition1 = {72, 72},
-    FontSize1     = 36,
-    TextMap1      = ep_text:create(Font1, TextPosition1, FontSize1), 
-    ep_text:one_line(PDF, Text1, Job, TextMap1),
+    TextA         = "Best of erlPress_core.01",
+    FontA         = "Helvetica",
+    PositionA     = {72, 72},
+    FontSizeA     = 36,
+    TextMapA      = ep_text:create(FontA, PositionA, FontSizeA), 
+    ep_text:one_line(PDF, TextA, Job, TextMapA),
 
-    Text1A         = "Justified Text",
-    Font1A         = "Helvetica",
-    TextPosition1A = {72, 125},
-    FontSize1A     = 24,
-    TextMap1A      = ep_text:create(Font1A, TextPosition1A, FontSize1A), 
-    ep_text:one_line(PDF, Text1A, Job, TextMap1A),
+    TextB          = "Justified Text",
+    FontB          = "Helvetica",
+    PositionB      = {72, 125},
+    FontSizeB      = 24,
+    TextMapB       = ep_text:create(FontB, PositionB, FontSizeB), 
+    ep_text:one_line(PDF, TextB, Job, TextMapB),
 
-     Text1B      = ep_sample_text:times_14(),
-     Position1B  = {72, 140},
-     Measure1B   = 450,
-     BlockMap1C  = ep_text_block:create(Text1B, Position1B, Measure1B),
-     BlockMap1D  = maps:put(nlines, 6, BlockMap1C),
-     BlockMap1E  = maps:put(margin, 20, BlockMap1D),
-     BlockMap1H  = maps:put(background_color, white, BlockMap1E),
-     BlockMap1I  = maps:put(border_color, white, BlockMap1H),
-     ep_text_block:text_block(PDF, Job, BlockMap1I),
 
-    Text1N         = "Boxed Text",
-    Font1N         = "Helvetica",
-    TextPosition1N = {72, 320},
-    FontSize1N     = 24,
-    TextMap1N      = ep_text:create(Font1N, TextPosition1N, FontSize1N), 
-    ep_text:one_line(PDF, Text1N, Job, TextMap1N),
+    PanelNameC                   = {1, 1, justify}, 
+    CopyC                        = ep_sample_text:times_14(),
+    PositionC                    = {72, 140},
+    SizeC                        = {450, 150},
+    PanelMapC                    = ep_panel:create(PanelNameC, PositionC, SizeC),
+    {PasteC, _Spill, _PanelMapC} = ep_text_block:fit_copy(CopyC, PanelMapC),
+    ep_paste_lib:paste(PDF, PasteC, [], PanelMapC),
+
+
+    TextD          = "Boxed Text",
+    FontD          = "Helvetica",
+    TextPositionD  = {72, 280},
+    FontSizeD      = 24,
+    TextMapD       = ep_text:create(FontD, TextPositionD, FontSizeD), 
+    ep_text:one_line(PDF, TextD, Job, TextMapD),
 
  
-     Text1C      = ep_sample_text:helvetica_10(),
-     Position1E  = {72, 350},
-     Measure1E   = 350,
-     BlockMap1K  = ep_text_block:create(Text1C, Position1E, Measure1E),
-     BlockMap1L  = maps:put(nlines, 6, BlockMap1K),
-     BlockMap1M  = maps:put(typespec, ep_typespec:default_helvetica(10), BlockMap1L),
-     ep_text_block:text_block(PDF, Job, BlockMap1M),
+     PanelNameE                    = {1, 2, boxed_text}, 
+     CopyE                         = ep_sample_text:helvetica_10(),
+     PositionE                     = {72, 320},
+     SizeE                         = {450, 110},
+     PanelMapE1                    = ep_panel:create(PanelNameE, PositionE, SizeE),
+     PanelMapE2                    = ep_panel:update_typestyle(justify_report_hv, PanelMapE1),
+     PanelMapE3                    = ep_panel:reveal(PanelMapE2),
+     PanelMapE4                    = ep_panel:update_background_color(gainsboro, PanelMapE3),
+     {PasteE, _Spill, _PanelMapE5} = ep_text_block:fit_copy(CopyE, PanelMapE4),
+     ok                            = ep_paste_lib:paste_panel(PDF, Job, PanelMapE4),
+     ok                            = ep_paste_lib:paste(PDF, PasteE, [], PanelMapE4),
+
 
     Text1S         = "Poetry (Preformatted Text)",
     Font1S         = "Helvetica",
-    TextPosition1S = {72, 550},
+    TextPosition1S = {72, 500},
     FontSize1S     = 24,
     TextMap1S      = ep_text:create(Font1S, TextPosition1S, FontSize1S), 
     ep_text:one_line(PDF, Text1S, Job, TextMap1S),
 
 
-     Text1O     = ep_sample_text:the_road_not_taken(),
-     Position1O = {72, 580},
-     Measure1O  = 230,
-     BlockMap1O = ep_text_block:create(Text1O, Position1O, Measure1O),
-     BlockMap1P = maps:put(justification, preformatted, BlockMap1O),
-     BlockMap1Q = maps:put(nlines, 7, BlockMap1P),
-     BlockMap1R = maps:put(background_color, white, BlockMap1Q),
-     BlockMap1S = maps:put(leading, 18, BlockMap1R),
-     BlockMap1T = maps:put(indent, 10, BlockMap1S),
-     ep_text_block:text_block(PDF, Job, BlockMap1T),
-
-
-
+     PanelNameF                    = {1, 3, poetry}, 
+     CopyF                         = ep_sample_text:the_road_not_taken(),
+     PositionF                     = {72, 530},
+     SizeF                         = {210, 150},
+     PanelMapF1                    = ep_panel:create(PanelNameF, PositionF, SizeF),
+     PanelMapF2                    = ep_panel:reveal(PanelMapF1),
+     PanelMapF3                    = ep_panel:update_typestyle(preformatted_report, PanelMapF2),
+     {PasteF, _Spill, _PanelMapF4} = ep_text_block:fit_copy(CopyF, PanelMapF3),
+     ok                            = ep_paste_lib:paste_panel(PDF, Job, PanelMapF3),
+     ok                            = ep_paste_lib:paste(PDF, PasteF, [], PanelMapF3),
 
 
     ep_page:next_page(PDF),    % ****** Page 2
@@ -102,14 +110,21 @@ run()->
     TextMap2N      = ep_text:create(Font2N, TextPosition2N, FontSize2N), 
     ep_text:one_line(PDF, Text2N, Job, TextMap2N),
 
+
+
+     PanelNameG                    = {2, 1, centered}, 
+     CopyG                         = ep_sample_text:times_14(),
+     PositionG                     = {72, 120},
+     SizeG                         = {450, 170},
+     PanelMapG1                    = ep_panel:create(PanelNameG, PositionG, SizeG),
+     PanelMapG2                    = ep_panel:reveal(PanelMapG1),
+     PanelMapG3                    = ep_panel:update_background_color(gainsboro, PanelMapG2),
+     PanelMapG4                    = ep_panel:update_typestyle(centered_report, PanelMapG3),
+     {PasteG, _Spill, _PanelMapG5} = ep_text_block:fit_copy(CopyG, PanelMapG4),
+     ok                            = ep_paste_lib:paste_panel(PDF, Job, PanelMapG4),
+     ok                            = ep_paste_lib:paste(PDF, PasteG, [], PanelMapG4),
+
  
-     Text2A     = ep_sample_text:times_14(),
-     Position2A = {72, 102},
-     Measure2A  = 450,
-     BlockMap2A = ep_text_block:create(Text2A, Position2A, Measure2A),
-     BlockMap2B = maps:put(justification, centered, BlockMap2A),
-     BlockMap2C = maps:put(nlines, 9, BlockMap2B),
-     ep_text_block:text_block(PDF, Job, BlockMap2C),
 
     Text2M         = "Right Justified Text",
     Font2M         = "Helvetica",
@@ -118,27 +133,48 @@ run()->
     TextMap2M      = ep_text:create(Font2M, TextPosition2M, FontSize2M), 
     ep_text:one_line(PDF, Text2M, Job, TextMap2M),
 
- 
-     Text2B     = ep_sample_text:times_14(),
-     Position2D = {72, 398},
-     Measure2D  = 450,
-     BlockMap2E = ep_text_block:create(Text2B, Position2D, Measure2D),
-     BlockMap2F = maps:put(justification, ragged_left, BlockMap2E),
-     BlockMap2G = maps:put(nlines, 7, BlockMap2F),
-     BlockMap2H = maps:put(radius, 0, BlockMap2G),
-     BlockMap2I = maps:put(background_color, white, BlockMap2H),
-     ep_text_block:text_block(PDF, Job, BlockMap2I),
 
+     PanelNameH                      = {2, 2, ragged_left},
+     CopyH                           = ep_sample_text:times_14(),
+     PositionH                       = {72, 380},
+     SizeH                           = {450, 110},
+     PanelMapH1                      = ep_panel:create(PanelNameH, PositionH, SizeH),
+     PanelMapH2                      = ep_panel:reveal(PanelMapH1),
+     PanelMapH3                      = ep_panel:reveal(PanelMapH2),
+     PanelMapH4                      = ep_panel:update_radius(0, PanelMapH3),
+     PanelMapH5                      = ep_panel:update_typestyle(ragged_left_report, PanelMapH4),
+     {PasteH, _Spill, _PanelMapH6}   = ep_text_block:fit_copy(CopyH, PanelMapH5),
+     ok                              = ep_paste_lib:paste_panel(PDF, Job, PanelMapH5),
+     ok                              = ep_paste_lib:paste(PDF, PasteH, [], PanelMapH5),
+
+%% NOTE: The following example demonstrates how to position and display text
+%%       Note that Y coordinate of text sample is not inverted; e.g. text will
+%%       assume that Y coordinate is at the bottom of the page. 
+%%       ErlPress functions invert Y coordiante so that Y = 0 is at the 
+%%       top of the page-- bit of a hassle, but is more consistent with 
+%%       human scanning of pages from top to bottom. 
 
     Text2O         = "Kerning",
     Font2O         = "Helvetica",
-    TextPosition2O = {72, 620},
+    TextPosition2O = {72, 570},
     FontSize2O     = 24,
     TextMap2O      = ep_text:create(Font2O, TextPosition2O, FontSize2O), 
     ep_text:one_line(PDF, Text2O, Job, TextMap2O),
 
 
-    ep_text:test_sample(PDF, {72, 140}),
+    eg_pdf:begin_text(PDF),
+    eg_pdf:set_text_pos(PDF, 72, 190),
+    eg_pdf:set_text_leading(PDF,14),
+    eg_pdf:set_font(PDF,"Blahonga", 12),
+    eg_pdf:textbr(PDF, "The blahonga font will fall back to Times-Roman"),
+    eg_pdf:textbr(PDF, "This is a check of ( ) \\ escape chars"),
+    eg_pdf:kernedtext(PDF,
+                   [ "This is a test of Kerning: A", 120, "W",
+                     120, "A", 95, "Y again" ]),
+    eg_pdf:break_text(PDF),
+    eg_pdf:textbr(PDF, "This is a text without Kerning: AWAY again"),
+    eg_pdf:break_text(PDF),
+    eg_pdf:end_text(PDF),
 
 
     ep_page:next_page(PDF),    % ****** Page 3
@@ -219,7 +255,7 @@ run()->
     TextMap6A      = ep_text:create(Font6A, TextPosition6A, FontSize6A), 
     ep_text:one_line(PDF, Text6A, Job, TextMap6A),
 
-     Text1B      = ep_sample_text:times_14(),
+%    Text1B      = ep_sample_text:times_14(),
 
 
     CropmarkMap = ep_cropmark:create({72, 190}),

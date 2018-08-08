@@ -38,21 +38,26 @@
 
 
 
+
 -module (ep_panel).
 
 -export([create/3, panel/3]).
 -export([get_id/1, get_page_number/1, get_panel_index/1, get_panel_name/1]).
--export([get_position/1, get_text_position/1, get_size/1, get_radius/1, get_next_line/1]).
--export([get_available/1, get_nlines/3, get_border/1]).
+-export([get_name_string/1]).
+-export([get_position/1, get_text_position/1, get_size/1, get_radius/1, get_content_cursor/1]).
+-export([get_available/1, consumed/2, will_fit/3, get_available_lines/3]).
+-export([get_border/1]).
 -export([get_border_style/1, get_border_color/1, get_margin/1]).
--export([get_measure/1, get_indent/1]).
+-export([get_measure/1, get_indent/1, get_rot/1]).
 -export([get_jump_prompt/1, get_typestyle/1]).
 
 -export([update_id/2, update_position/2, update_size/2, update_radius/2]).
--export([update_next_line/2]).
+-export([update_content_cursor/2]).
 -export([update_border/2, update_border_style/2, update_border_color/2]).
--export([update_background_color/2, update_margin/2, update_jump_prompt/2]).
--export([update_typestyle/2]).
+-export([update_background_color/2, update_margin/2, update_rot/2]).
+-export([update_jump_prompt/2]).
+-export([update_typestyle/2, update_panel/3, break/1]).
+-export([reveal/1]).
 -export([default_panel/0]).
 
 
@@ -61,13 +66,14 @@
 -define(SIZE, {350, 500}).
 -define(RADIUS, 10).
 -define(NEXT_LINE, 72).
--define(BORDER, 1).
+-define(BORDER, 0).
 -define(BORDER_STYLE, solid).
--define(BORDER_COLOR, black).
--define(BACKGROUND_COLOR, eg_pdf_op:color(gainsboro)).
--define(MARGIN, 20).
--define(INDENT, 30).
--define(TYPESTYLE, report).
+-define(BORDER_COLOR, white).
+-define(BACKGROUND_COLOR, white). % eg_pdf_op:color(gainsboro)).
+-define(MARGIN, 10).
+-define(INDENT, 20).
+-define(TYPESTYLE, justify_report).
+-define(ROT, 0).
 -define(JUMP_PROMPT, "No jump").
 
 
@@ -91,18 +97,20 @@ create(ID, Position, Size) ->
      , position          => Position 
      , size              => Size
      , radius            => ?RADIUS
-     , next_line         => init_next_line(Position) 
+     , content_cursor    => init_content_cursor(Position) 
      , border            => ?BORDER
      , border_style      => ?BORDER_STYLE
      , border_color      => ?BORDER_COLOR
      , background_color  => ?BACKGROUND_COLOR
      , margin            => ?MARGIN
-     , indent            => ?INDENT
      , typestyle         => ?TYPESTYLE
+     , indent            => ?INDENT
+     , rot               => ?ROT
      , jump_prompt       => ?JUMP_PROMPT
      }. 
 
-init_next_line(Position) ->
+
+init_content_cursor(Position) ->
    {_X, Y} = Position,
    Y.
 
@@ -112,8 +120,7 @@ init_next_line(Position) ->
 %% ***********************************************************
 
 panel(PDF, Job, PanelMap) ->
-   PanelName = get_panel_name(PanelMap),
-   io:format("~n^^^^^^^ Pasting panel - Name: ~p~n", [PanelName]),
+   % PanelName       = get_panel_name(PanelMap),
    Position        = ep_job:flip_box(Job, PanelMap),
    Size            = maps:get(size, PanelMap),
    
@@ -128,7 +135,6 @@ panel(PDF, Job, PanelMap) ->
    eg_pdf:set_fill_color(PDF, BackgroundColor),
    eg_pdf:round_rect(PDF, Position, Size, Radius),
    eg_pdf:path(PDF, fill_stroke),
-   io:format("^^^^^^^ Leaving panel~n~n"),
    ok.
 
 
@@ -184,6 +190,21 @@ get_panel_name(PanelMap) ->
 
 
 %% ***********************************************************
+%% Get panel name as string
+%% ***********************************************************
+
+%% @doc Get panel name as string
+
+-spec get_name_string(PanelMap :: map()) -> string().
+
+get_name_string(PanelMap) ->
+   ID = ep_panel:get_id(PanelMap),
+   List = tuple_to_list(ID),
+   List1 = lists:join("-", List),
+   lists:concat(List1).
+
+
+%% ***********************************************************
 %% Get position 
 %% ***********************************************************
 
@@ -205,8 +226,8 @@ get_position(PanelMap) ->
 
 get_text_position(PanelMap) ->
    {X, _Y} = maps:get(position, PanelMap),
-   NextLine = maps:get(next_line, PanelMap),
-   ep_lib:impose_text({X, NextLine}, letter).
+   Cursor = maps:get(content_cursor, PanelMap),
+   ep_lib:impose_text({X, Cursor}, letter).
 
 
 %% ***********************************************************
@@ -239,44 +260,73 @@ get_radius(PanelMap) ->
 
 %% @doc Get next line
 
--spec get_next_line(PanelMap :: map()) -> integer().
+-spec get_content_cursor(PanelMap :: map()) -> integer().
 
-get_next_line(PanelMap) ->
-   maps:get(next_line, PanelMap).
+get_content_cursor(PanelMap) ->
+   maps:get(content_cursor, PanelMap).
 
 
 %% ***********************************************************
-%% Get available 
+%% get_available/1 - Return available space in pixels 
 %% ***********************************************************
 
-%% @doc Get available 
+%% @doc Return available space in panel in pixels 
 
 -spec get_available(PanelMap :: map()) -> integer().
 
 get_available(PanelMap) ->
    {_X, Y} = maps:get(position, PanelMap),
    {_Width, Height} = maps:get(size, PanelMap),
-   NextLine         = maps:get(next_line, PanelMap),
-   (Y + Height) - NextLine.
+   Cursor           = maps:get(content_cursor, PanelMap),
+   (Y + Height) - Cursor.
+
+
+%% ***********************************************************
+%% consumed/2 - Return vertical space consumed by lines 
+%% ***********************************************************
+
+
+%% @doc Return vertical space in panel consumed by lines 
+
+-spec consumed(Tag   :: atom(),
+               Lines :: list()) -> integer().
+
+consumed(Tag, Lines) ->
+   Leading  = ep_report_sty:report_leading(Tag),
+   Leading * length(Lines).
+
+
+%% ***********************************************************
+%% will_fit/3 - Returns true if lines fit in panel 
+%% ***********************************************************
+
+
+%% @doc Returns true if lines fit in panel
+
+-spec will_fit(Tag      :: atom(),
+               Lines    :: list(),
+               PanelMap :: map()) -> boolean().
+
+will_fit(Tag, Lines, PanelMap) ->
+    Consumed = ep_panel:consumed(Tag, Lines),
+    Available = ep_panel:get_available(PanelMap),
+    Available >= Consumed.
 
    
 %% ***********************************************************
-%% Get NLines 
+%% get_avialable/3 - Return available lines in panel 
 %% ***********************************************************
 
-%% @doc Get NLines 
+%% @doc Given tag, return available lines in panel 
 
--spec get_nlines(TypeStyle  :: atom(),
-                 Tag        :: atom(),
-                  PanelMap  :: map()) -> integer().
+-spec get_available_lines(TypeStyle  :: atom(),
+                          Tag        :: atom(),
+                          PanelMap   :: map()) -> integer().
 
-get_nlines(TypeStyle, Tag, PanelMap) ->
+get_available_lines(TypeStyle, Tag, PanelMap) ->
    Available = get_available(PanelMap),
-   Leading   = ep_typespec:get_leading(TypeStyle, Tag),
+   Leading   = ep_typespec:leading(TypeStyle, Tag),
    Available div Leading.
-
-
-   
 
 
 %% ***********************************************************
@@ -355,9 +405,15 @@ get_indent(PanelMap) ->
 
 
 %% ***********************************************************
+%% Get rot 
+%% ***********************************************************
 
+%% @doc Get rot; text rotation angle  
 
+-spec get_rot(PanelMap :: map()) -> integer().
 
+get_rot(PanelMap) ->
+   maps:get(rot, PanelMap).
 
 
 %% ***********************************************************
@@ -430,7 +486,7 @@ update_size(Size, PanelMap) ->
 
 %% @doc Update radius
 
--spec update_radius(Radius   :: tuple(),
+-spec update_radius(Radius   :: integer(),
                     PanelMap :: map()) -> map().
 
 update_radius(Radius, PanelMap) ->
@@ -443,11 +499,13 @@ update_radius(Radius, PanelMap) ->
 
 %% @doc Update next line 
 
--spec update_next_line(NextLine  :: tuple(),
-                       PanelMap  :: map()) -> map().
+-spec update_content_cursor(Pixels    :: integer(),
+                            PanelMap  :: map()) -> map().
 
-update_next_line(NextLine, PanelMap) ->
-   maps:put(next_line, NextLine, PanelMap).
+update_content_cursor(Pixels, PanelMap) ->
+   Cursor  = get_content_cursor(PanelMap),
+   Cursor1 = Cursor + Pixels,
+   maps:put(content_cursor, Cursor1, PanelMap).
 
 
 %% ***********************************************************
@@ -503,7 +561,7 @@ update_background_color(BackgroundColor, PanelMap) ->
 
 
 %% ***********************************************************
-%% Updatte margin 
+%% Update margin 
 %% ***********************************************************
 
 %% @doc Update margin
@@ -513,6 +571,19 @@ update_background_color(BackgroundColor, PanelMap) ->
 
 update_margin(Margin, PanelMap) ->
    maps:put(margin, Margin, PanelMap).
+
+
+%% ***********************************************************
+%% Update rot 
+%% ***********************************************************
+
+%% @doc Update rot 
+
+-spec update_rot(Rot   :: integer(),
+                 PanelMap :: map()) -> map().
+
+update_rot(Rot, PanelMap) ->
+   maps:put(rot, Rot, PanelMap).
 
 
 %% ***********************************************************
@@ -539,6 +610,52 @@ update_jump_prompt(JumpPrompt, PanelMap) ->
 
 update_typestyle(TypeStyle, PanelMap) ->
    maps:put(typestyle, TypeStyle, PanelMap).
+
+
+
+%% ***********************************************************
+%% Update panel 
+%% ***********************************************************
+
+%% @doc Update content cursor (NextLine) in panel
+
+-spec update_panel(Tag      :: atom(),
+                   Lines    :: list(),
+                   PanelMap :: map()) -> map().
+
+
+update_panel(br, _Lines, PanelMap) ->
+   break(PanelMap);
+
+update_panel(Tag, Lines, PanelMap) ->
+   Consumed = consumed(Tag, Lines),
+   ep_panel:update_content_cursor(Consumed, PanelMap).
+
+
+%% @doc Advance content cursor (NextLine) in panel
+
+-spec break(PanelMap :: map()) -> tuple().
+
+break(PanelMap) ->
+   TypeStyle  = ep_panel:get_typestyle(PanelMap),
+   FontSize   = ep_typespec:fontsize(TypeStyle, p),
+   ep_panel:update_content_cursor(FontSize, PanelMap).
+   
+
+%% ***********************************************************
+%% reveal/1 -- make panelmap displayble 
+%% ***********************************************************
+
+%% @doc Make panelmap displayable
+
+-spec reveal(PanelMap :: map()) -> map().
+
+reveal(PanelMap) ->
+    PanelMap1 = ep_panel:update_border(1, PanelMap),
+    PanelMap2 = ep_panel:update_border_style(solid, PanelMap1),
+    ep_panel:update_border_color(black, PanelMap2).
+
+
 
 
 %% ***********************************************************

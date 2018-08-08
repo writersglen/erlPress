@@ -1,149 +1,26 @@
 
+%% *****************************************************************
+%% NOTE: erlPress is very much a work in progress. No doubt the 
+%%       functionality of erlPress_core can be extended in many ways
+%%       and both code and documentation can be significantly
+%%       improved.
+%%
+%%       We welcome your involvement. High on our list: support for
+%%       OpenType and TrueType fonts. And more: We much look forward
+%%       to creative applications that build on erlPress_core.
+%% *****************************************************************
+
+
 erlPress Programmer’s Guide
 
 
-
-ErlPress
-
-erlPress is a system for “painting” text and images on print media. It enables document creators to generate typographically sophisticated PDF documents and publications from within Erlang applications.
-
-erlPress is Open Source, flexible, and easy to use.
-
-
-%% *****************************************************************
-%% Genesis 
-%% *****************************************************************
-
-Genesis
-
-erlPress revises and extends ErlGuten, Joe Armstrong’s Erlang-based “system for high-quality typesetting.”
-
-It honors and strives to advance Joe’s original goals:
-
-— Easy to use – simple textual input
-
-— Multi-mode inputs (suited for technical reports, magazine layout and presentations)
-
-— Very high quality layout engine (better than TeX, in-design, quark etc.)
-
-http://erlang.org/euc/04/erlguten.pdf
-http://erlang.org/pipermail/erlang-questions/2003-March/008001.html
-
-erlPress further draws on excellent work by Hugh Hawkins, Carl Wright and others who have carried forward Joe’s vision.
-
-https://github.com/hwatkins/erlguten
-https://github.com/richcarl/erlguten
-
-Hugh Hawkins modestly describes ErlGuten as a “PDF generation application.” Thus, Adobe reference manual Version 1.4 is the inspiration and blueprint underlying ErlGuten.
-
-https://www.adobe.com/devnet/pdf/pdf_reference_archive.html
-
-Developed in the early 1990’s by Adobe, PDF is “a file format for representing documents in a manner independent of the application software, hardware, and operating system used to create them and of the output device on which they are to be displayed or printed.”
-
-PDF reference manual Version 1.4 p. 9
-
-PDF is based on the industry standard Postscript programming language developed by Adobe in 1985. Postscript, in turn, is an implementation of Adobe’s imaging model which, simply stated, models “paint” placed on a page in selected areas.
-
-Adobe reference manual Version 1.4 p. 32
-
-ErlGuten brings PDF and Postscript to Erlang. But ErlGuten as a diamond in the rough. It’s font handling and typesetting routines are particularly noteworthy. But, despite work by several contributors, ErlGuten it fall short of promised goals.
-
-
-
-%% *****************************************************************
-%% erlPress 
-%% *****************************************************************
-
-erlPress
-
-ErlPress strives to advance ErlGuten in several ways:
-
-— Improve code readability and documentation
-
-— Reorganize code for easier maintenance and extensibility
-
-— Provide user interfaces and terminology more aligned with editorial, graphic design, and print traditions and practices
-
-— Provide support for extended Markdown input
-
-— Provide libraries for easy development of conventional print formats ranging from business cards, invoices, and reports to books and magazines.
-
-
-%% *****************************************************************
-%% Editorial work flow 
-%% *****************************************************************
-
-
-Editorial work flow
-
-erlPress is inspired by traditions of the commercial editorial and 
-publishing world.  In this world, print matter is created by
-specialist professionals: 
-
-
--- Client or publisher commissions an editorial project; e.g. job
-   and specifies format; e.g. postcard, newsletter, book
-
--- Writers create articles or manuscripts; e.g. text also known as copy
-
--- Photographers/photo editors generate images
-
--- Illustrators generate images
-
--- Editors assign writers; edit articles or manuscript
-
--- Graphic designer specifies type; e.g. fonts, faces, sizes
-
--- Typesetters type set articles or manuscript
-
--- Editors proof typeset copy
-
--- Graphic designer creates page layouts, pastes up typeset copy, 
-   and images
-
--- Printer prints one or more copies 
-
-
-Note that the functions above may be executed by more than one person.
-
-erlPress is concerned mainly with editorial processes resulting in PDF 
-files. These files, in turn, may be printed in quantity on a desktop 
-printer for distribution or given to a commercial printer for reproduction.
-
-
-%% *****************************************************************
-%% erlPress user Work Flow 
-%% *****************************************************************
-
-
-erlPress User Work Flow
-
-— Select document format, e.g. size and shape
-— Write/edit copy
-— Prepare illustrations
-— Design page grids
-— Layout copy and images
-— Select paper stock
-— Impose document format on paper stock
-— Print
-— Proof and correct
-— Publish
-
-
-%% *****************************************************************
-%% Programmer's perspective 
-%% *****************************************************************
-
-
-Programmer’s perspective
-
-erlPress strives to automate as much of the user workflow as possible and to deliver the most intuitive possible user interface.
+erlPress strives to automate print-media editorial/publishng workflow and to deliver the most intuitive possible user interface.
 
 At heart, erlPress involves positioning boxes of various size in two-dimensional space.
 
 Boxes contain other boxes, graphic elements, and text. Much of the code involves translating sets of xy coordinates relative to other xy coordinates. Boxes define the “selected areas” in which output devices “paint” graphic elements and text.
 
-Operationally, “paint” is implemented as sequences of PDF and postscript operators defined in the PDF reference manual.
+Operationally, “paint” is implemented as sequences of PDF and postscript operators defined in PDF reference manual Version 1.4.
 
 
 %% *****************************************************************
@@ -159,7 +36,7 @@ A rich and descriptive technical vocabulary that facilitates efficient teamwork 
 
 For this reason, erlPress employs technical terms and concepts drawn from print/graphic design tradition as well as terms defined in the PDF reference manual.
 
-We've added a few technical terms and jaron of our own.
+We've added a few technical/jarony terms of our own.
 
 Here are a few terms that will serve you well as you review and work with erlPress code:
 
@@ -167,6 +44,7 @@ Here are a few terms that will serve you well as you review and work with erlPre
 %% *****************************************************************
 %% Content
 %% *****************************************************************
+
 
 CONTENT
 
@@ -176,7 +54,7 @@ as "text_blocks", e.g. raw text; "articles"; or "manuscripts."
 
 Content elements have one or more attributes that define the 
 position, size, and other attributes of the element. These attributes
-are represented as Erlang maps in erlPress.
+are represented in erlPress as Erlang maps.
 
 
 %% *****************************************************************
@@ -185,7 +63,7 @@ are represented as Erlang maps in erlPress.
 
 JOB
 
-A "print job" is represented as an Erlang map in erlPress:
+This Erlang map defines a "Job":
 
 create(Title, Publisher) ->
    #{ title          => Title
@@ -201,6 +79,8 @@ create(Title, Publisher) ->
     , paper_stock    => ?PAPER_STOCK
     , page_format    => ?PAGE_FORMAT
    }.
+
+Note that defaults are provided for several attributes. But the defaults are easily changed.
 
 
 %% *****************************************************************
@@ -277,6 +157,8 @@ trimming... The default value is the page's crop box."
 Art box "defines the extent of the page's meaningful content... as 
 intended by the page's creator."
 
+erlPress positions and scales content in "panels." See ../layout/ep_panels.erl.
+
 
 %% *****************************************************************
 %% Imposition 
@@ -302,7 +184,7 @@ printed piece.
 To see list of formats supported by erlPress, execute
 rp(ep_format:formats()).
 
-To trim sizes, rp(ep_format:format_list()).
+To trim sizes, execute rp(ep_format:format_list()) in the erlPress_core Erlang shell..
 
 
 %% *****************************************************************
@@ -320,7 +202,8 @@ A well-designed page grid presents a pleasing composition, organized
 content, and a controlled "eye-path" guiding the consumer through
 the content.
 
-Page grids are represented by a list of "panels" in erlPress.
+Page grids are represented by a list of "panels" in erlPress. Page grid functions are not yet available in erlPress_core.
+
 
 
 %% *****************************************************************
@@ -332,42 +215,92 @@ PANEL
 In erlPress, a panel is a box that has width, height, a name and a unique 
 index number relative to other panels on the page.
 
+This map describes a panel:
+
+create(ID, Position, Size) ->
+    #{ id                => ID
+     , position          => Position
+     , size              => Size
+     , radius            => ?RADIUS
+     , content_cursor    => init_content_cursor(Position)
+     , border            => ?BORDER
+     , border_style      => ?BORDER_STYLE
+     , border_color      => ?BORDER_COLOR
+     , background_color  => ?BACKGROUND_COLOR
+     , margin            => ?MARGIN
+     , typestyle         => ?TYPESTYLE
+     , indent            => ?INDENT
+     , rot               => ?ROT
+     , jump_prompt       => ?JUMP_PROMPT
+     }.
+
 
 %% *****************************************************************
-%% Text elements
+%% Type styles
 %% *****************************************************************
 
+TYPE STYLES
 
-TEXT BLOCK
+Type styles are defined in ../typespec. Type styles define type faces,
+leading, line justification, and paragrph indentation.
 
-create(Position, Size, Radius) ->
-   #{ position          => Position
-    , size              => Size
-    , radius            => Radius
-    , border            => ?BORDER
-    , border_style      => ?BORDER_STYLE
-    , border_color      => ?BORDER_COLOR
-    , background_color  => ?BACKGROUND_COLOR
-    }.
+Styles defined to date can be found in:
 
-PAGE NUMBER
+-- ep_report_sty.erl
+-- ep_report_hv_sty.erl
 
-create(From, Text) ->
-   #{ from         =>  From
-    , text          => Text
-    , font          => ?FONT
-    , font_size     => ?FONT_SIZE
-    }.
+Note that ep_report_sty.erl defines five styles:
 
-TYPE FACE
+- justify_report/1
+- ragged_report/1
+- preformatted_report/1
+- centered_report/1
+- ragged_left_report/1
 
-create(Font, Size) ->
-   #{ font        => Font
-    , size        => Size
-    , breakable   => true
-    , color       => ?COLOR
-    , voffset     => 0
-    }.
+You can use ep_report_sty.erl as a model for defining your own styles.
+
+Functions to access style attributes can be found in ../typespec/ep_typespec.erl
+
+- ep_typespec:get_specs(TypeStyle, Tag)
+- ep_typespec:faces(TypeStyle, Tag)
+- ep_typespec:fontsize(TypeStyle, Tag)
+- ep_typespec:max_linespace(TypeStyle, Tag)
+- ep_typespec:leading(TypeStyle, Tag)
+- ep_typespec:justify(TypeStyle, Tag)
+- ep_typespec:indent(TypeStyle, Tag)
+
+
+%% *****************************************************************
+%% Text 
+%% *****************************************************************
+
+Refer to examples in ../tests/ep_show_n_tell.erl to see how to display text blocks.
+
+%% **************************************************
+%% Text transformations 
+%% **************************************************
+
+Note the "rot" attribute in the panel map. 
+
+This code taken from ../tests/ep_show_n_tell.erl demonstrates how to rotate text:
+
+    Text8A         = "Th-th-th-that's all folks!",
+    Font8A         = "Helvetica",
+    TextPosition8A = {450, 550},
+    FontSize8A     = 36,
+    TextMap8A      = ep_text:create(Font8A, TextPosition8A, FontSize8A),
+    TextMap8B      = maps:put(rot, 90, TextMap8A),
+    ep_text:one_line(PDF, Text8A, Job, TextMap8B),
+
+
+%% *****************************************************************
+%% Content maps 
+%% *****************************************************************
+
+In addition to text, content elements include images, lines, and geometric shapes.
+
+The module ../tests/ep_show_n_tell.erl demonstrates how to display these elements. 
+
 
 %% *****************************************************************
 %% Images 
@@ -502,13 +435,13 @@ create(Position, Size, Radius) ->
 %% Page layout 
 %% **************************************************
 
+Future work.
+
 %% **************************************************
 %% Articles and Beads
 %% **************************************************
 
-%% **************************************************
-%% Text transformations 
-%% **************************************************
+Future work.
 
 %% *****************************************************************
 %% Road Map/Wish List 

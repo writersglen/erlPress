@@ -1,0 +1,235 @@
+
+COPYFIT - Fit copy into a panel
+
+copyfit_top_panel(XML, Beads) 
+
+   Calls: assign_content(Content, XML, PanelMap, true)
+
+       Calls: RichText = rich_text(Tag, Xml, PanelMap)
+       
+          Norm           = ep_block:normalise_xml(Xml, FontMap),
+          {_, _, RichText}  = Norm
+
+      And: get_lines(RichText, Xml, PanelMap)
+
+         {Widths, _Offsets} = line_specs(Tag, PanelMap, Vacancies),
+         Justify            = ep_typestyle:report_justify(Tag),
+         MaybeLines         = ep_line_break:break_richText(RichText, {Justify, Widths})
+
+            text2para_widths(Txt, ParaShape, Widths, Rules)
+                   
+                 ParaShape:  ragged
+                             ragged_force_split
+                             simple_hypenate
+                             preformed
+                             justified
+
+                 justify(Text, Widths, Rules)
+
+
+Insights:
+
+1. Indentation is implemented in computation of widths array. 
+   See: ep_article:line_specs(Tag, PanelMap, Vacancies)
+
+2. I can control indents by passing appropriate tag in ep_article:line_specs/3
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+PASTE -- Transform text to PDF
+
+
+trial_paste(Paste, Cost, PanelMap)
+
+   paste(PDF, Paste1, Cost, PanelMap1)
+   
+      paste_lines(PDF, Tag, Lines, Cost, PanelMap)
+
+         pdf_code(PDF, Tag, Leading, Lines, Cost1, PanelMap1)
+         paste(PDF, Code)
+
+
+
+%% ep_block:paste_text(PDF, X, Y, RichText, BlockMap)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+copyfit_spill(XML1, MoreBeads, Spill)
+
+   recompute_spill(Tag, PanelMap, Spill)
+
+      line_specs(Tag1, PanelMap, Vacancies)
+
+      ep_line_break:break_richText(RichText, {Justify, Widths})
+
+
+
+
+recompute_spill(Tag, PanelMap, Spill) ->
+   Tag1               = spill,
+   Vacancies          = 10,
+   RichText           = hd(Spill),
+   {Widths, _Offsets} = line_specs(Tag1, PanelMap, Vacancies),
+
+   Justify            = ep_typestyle:report_justify(Tag),
+%   Justify            = spill,
+   MaybeLines         = ep_line_break:break_richText(RichText, {Justify, Widths}),
+%   MaybeLines         = ep_block:break_rich_text(RichText, Justify, Widths),
+   Lines              = lines(MaybeLines),
+   [{Tag, Lines} | []].
+
+
+line_specs(Tag, PanelMap, Vacancies) ->
+    Measure = ep_panel:get_measure(PanelMap),
+    Margin  = ep_panel:get_margin(PanelMap),
+    Indent  = ep_panel:get_indent(PanelMap),
+    case Tag of
+        p  -> Widths  = [Measure - Indent|lists:duplicate(Vacancies - 1, Measure)],
+              Offsets = [Margin + Indent|lists:duplicate(Vacancies - 1, Margin)];
+
+        spill -> Widths = [Measure|lists:duplicate(Vacancies -1, Measure)],
+                 Offsets = [Margin|lists:duplicate(Vacancies -1, Margin)];
+        li  -> Widths  = [Measure - Indent|lists:duplicate(Vacancies - 1, Measure)],
+              Offsets = [Margin + Indent|lists:duplicate(Vacancies - 1, Margin)];
+        cl  -> Widths  = [Measure - Indent|lists:duplicate(Vacancies - 1, Measure)],
+              Offsets = [Margin + Indent|lists:duplicate(Vacancies - 1, Margin)];
+
+        _  -> Widths  = [Measure|lists:duplicate(Vacancies - 1, Margin)],
+              Offsets = [Margin|lists:duplicate(Vacancies - 1, Margin)]
+    end,
+    {Widths, Offsets}.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+
+
+
+RT: {richText,[{word,42648,
+                              {face,eg_font_13,12,0,{0,0,0},true},
+                              "correctly"},
+                        {space,3000,{face,eg_font_13,12,0,{0,0,0},true}},
+                        {word,36528,
+                              {face,eg_font_13,12,0,{0,0,0},true},
+                              "kerned!"},
+                        {space,3000,{face,eg_font_13,12,0,{0,0,0},true}},
+                        {word,31992,
+                              {face,eg_font_13,12,0,{0,0,0},true},
+                              "Erlang"},
+                        {space,3000,{face,eg_font_13,12,0,{0,0,0},true}},
+                        {word,26664,
+                              {face,eg_font_13,12,0,{0,0,0},true},
+                              "terms"},
+                        {space,3000,{face,eg_font_13,12,0,{0,0,0},true}},
+                        {word,43200,
+                              {face,eg_font_3,12,0,{0,0,0},true},
+                              "{like,"},
+                        {space,7200,{face,eg_font_3,12,0,{0,0,0},true}},
+                        {word,36000,
+                              {face,eg_font_3,12,0,{0,0,0},true},
+                              "this}"},
+                        {space,3000,{face,eg_font_13,12,0,{0,0,0},true}},
+                        {word,14652,{face,eg_font_13,12,0,{0,0,0},true},"are"},
+                        {space,3000,{face,eg_font_13,12,0,{0,0,0},true}},
+                        {word,33996,
+                              {face,eg_font_13,12,0,{0,0,0},true},
+                              "typeset"},
+                        {space,3000,{face,eg_font_13,12,0,{0,0,0},true}},
+                        {word,9336,{face,eg_font_13,12,0,{0,0,0},true},"in"},
+                        {space,3000,{face,eg_font_13,12,0,{0,0,0},true}},
+                        {word,36996,
+                              {face,eg_font_10,12,0,{0,0,0},true},
+                              "courier."}]}
+
+
+
+
+
+
+   Measure1      = Measure - (Margin * 2),
+
+   Widths        = widths(Margin, Measure1, NLines),
+
+   case Justify of
+      justified -> Offset = Margin;           % Margin; 
+      spill     -> Offset = offsets(0, Margin, NLines);
+      _         -> Offset = Margin             % Indent + Margin
+   end,
+   Off = Offset,     % offsets(Indent, Margin, NLines), 
+
+%%%%%%%%%%%%%%%%%%%%%
+
+
+%% Get lines called by assign_content/2
+
+get_lines(RichText, Xml, PanelMap) ->
+   Tag                = get_tag(Xml),
+   Vacancies          = vacancies(Tag, PanelMap),
+   {Widths, _Offsets} = line_specs(Tag, PanelMap, Vacancies),
+   Justify            = ep_typestyle:report_justify(Tag),
+
+   MaybeLines         = ep_block:break_rich_text(RichText, Justify, Widths),
+
+   Lines              = lines(MaybeLines),
+   Lines.
+
+
+%% Paste called by trial_paste
+
+
+paste(PDF, Paste, Cost, PanelMap) ->
+    [Paste1 | MorePaste] = Paste,
+    io:format("================ Paste1: ~p~n~n", [Paste1]),
+        % io:format("trial_paste3 - MorePaste: ~p~n~n", [MorePaste]),
+    Tag                = element(1, Paste1),
+    Lines              = element(2, Paste1),
+    io:format("================ Tag: ~p~n~n", [Tag]),
+    io:format("================ Lines: ~p~n~n", [Lines]),
+    {Cost1, PanelMap1} = paste_lines(PDF, Tag, Lines, Cost, PanelMap),
+    Paste2             = MorePaste,
+    paste(PDF, Paste2, Cost1, PanelMap1).
+
+
+
+%%% Paste lines called by paste/4
+
+
+paste_lines(PDF, Tag, Lines, Cost, PanelMap) ->
+        % io:format("Lines: ~p~n ~n", [Lines]),
+    {Cost1, PanelMap1} = impose_cost(-1, Cost, PanelMap),
+    Leading            = ep_typestyle:report_leading(Tag),
+    Code               = pdf_code(PDF, Tag, Leading, Lines, Cost1, PanelMap1),
+    ok                 = paste(PDF, Code),
+    PanelMap2          = update_panel(Tag, Lines, PanelMap1),
+    {Cost1, PanelMap2}.
+
+
+
+%%% pdf_code/6 called by paste_lines/5
+
+
+pdf_code(PDF, Tag, Leading, Lines, Cost, PanelMap) ->
+       io:format("=========== Entering pdf_code/5~n"),
+       io:format("=========== Tag: ~p~n", [Tag]),
+   TypeStyle         = ep_panel:get_typestyle(PanelMap),
+   {TextX, TextY}    = ep_panel:get_text_position(PanelMap),
+
+   Justify           = ep_typestyle:report_justify(Tag),
+
+   % VacantLines       = vacant_lines(Tag, PanelMap),
+
+   {Widths, Offsets} = line_specs(Tag, PanelMap, 10),   % VacantLines),
+         io:format("pdf_code/4 - Widths1: ~p~n", [Widths]),
+         io:format("pdf_code/4 - Offsets1: ~p~n", [Offsets]),
+         io:format("=========== Exiting~n~n"),
+   Code = ep_richText2pdf:richText2pdf(PDF,
+                                       TextX,
+                                       TextY,
+                                       Justify,
+                                       0,
+                                       Lines,
+                                       Leading,
+                                       Widths,
+                                       Offsets),
+    Code.
+
+

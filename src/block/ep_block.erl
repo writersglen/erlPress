@@ -14,7 +14,6 @@
 %%% ==========================================================================
 
 
-
 -module (ep_block).
 
 -export([block/3]).
@@ -63,8 +62,10 @@ inner_block(PDF, [{xml, Xml} | T], X, Y, BlockMap) ->
 
     
 block2(PDF, {xml, Xml}, X, Y, BlockMap) ->
+    io:format("================ block2/5 - BlockMap: ~p~n~n", [BlockMap]),
     Tag = element(1, Xml),
-    BlockMap1 = ep_typespec:update_blockmap(Tag, BlockMap),
+    BlockMap1 = ep_text_block:update_tag(Tag, BlockMap),
+%    BlockMap1 = ep_typespec:update_blockmap(Tag, BlockMap),
     TypeSpec = maps:get(face, BlockMap1),
     ensure_fonts_are_loaded(PDF, TypeSpec),
     Norm = normalise_xml(Xml, TypeSpec),
@@ -85,15 +86,19 @@ paste_text(PDF, X, Y, RichText, BlockMap) ->
    Justify       = maps:get(justify, BlockMap),
    Leading       = maps:get(leading, BlockMap),
 
+
+
    Measure1      = Measure - (Margin * 2),
 
    Widths        = widths(Margin, Measure1, NLines),
    
 %   case Justify of
-%      justified -> Offset = Margin;           % Margin; 
-%      _         -> Offset = Margin             % Indent + Margin
+%      justified -> Off =  Margin; 
+%      _         -> Off =  Indent + Margin
 %   end,
    Off = offsets(Indent, Margin, NLines), 
+
+
 
 
     MaybeLines = break_rich_text(RichText, Justify, Widths),
@@ -103,6 +108,7 @@ paste_text(PDF, X, Y, RichText, BlockMap) ->
     io:format("Justify: ~p~n", [Justify]),
     io:format("Widths: ~p~n", [Widths]),
     io:format("Off: ~p~n~n", [Off]),
+
 
     case MaybeLines of
 	impossible ->
@@ -159,6 +165,7 @@ offsets(Indent, Margin, NLines) ->
 
 
 break_rich_text(RichText, Justify, Widths) ->
+    io:format("Entering break_rich_text/3~n~n"),
     ep_line_break:break_richText(RichText, {Justify, Widths}).    
 
 

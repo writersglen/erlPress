@@ -63,8 +63,6 @@ dbg_io(_,_) -> ok.
 %%            source, which may only be used inside a 'text object' (chp 5.3 
 %%            in pdf reference manual 1.4 and 1.7)
 richText2pdf(PID, X, Y0, Type, Rot, Lines, Leading, Widths, Offsets) ->
-    io:format("Entering richText2pdf/9~n~n"),
-
 
     Y = Y0 - Leading,
     P = start(),

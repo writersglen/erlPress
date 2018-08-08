@@ -1,0 +1,506 @@
+%%% ==========================================================================
+%%% ep_text1.erl
+
+%%% @author     Lloyd R. Prentice
+%%% @copyright  2018 Lloyd R. Prentice
+%%% @version   .01
+%%% @doc
+%%%   License:
+%%%   File:         ep_text1.erl
+%%%   Description:  Display text 
+%%% @end
+
+%%% ==========================================================================
+
+
+-module (ep_text1).
+
+% -export([create/3, one_line/4]).
+% -export ([text_lines/3, next_text_line/4, end_text_lines/1]). 
+% -export([test_sample/2]).
+
+-compile(export_all).
+
+-define(TEXT_COLOR, black).
+
+
+
+%% ***********************************************************
+%% Create text map 
+%% ***********************************************************
+
+%% @doc Create text map
+
+-spec create(Font     :: string(),
+             Position :: tuple(),
+             Size     :: integer()) -> map().
+
+create(Font, Position, Size) ->
+   #{ font          => Font 
+    , position      => Position 
+    , size          => Size
+    , text_color    => ?TEXT_COLOR
+    , justification => justified
+    , rot           => 0
+    , leading       => Size + (Size div 2) 
+    }.
+
+
+%% ***********************************************************
+%% ***********************************************************
+%% Test functions 
+%% ***********************************************************
+%% ***********************************************************
+
+
+test_xml() ->
+   Copy = ep_sample_text:erlpress(),
+   ep_block:parse_xml(Copy).
+
+
+test_panelmap() ->
+   ep_panel:create({1, 1, test}, {72, 72}, {450, 600}).
+
+
+%% @doc Returns {pastable lines, spill, updated panelmap
+
+test_text_block() ->
+   XML                       = test_xml(),
+   PanelMap                  = test_panelmap(),
+   {Paste, Spill, PanelMap1} = fit_xml(XML, PanelMap),
+   paste_copy(Paste, [], PanelMap).
+
+
+
+
+
+
+
+
+
+
+
+%% ***********************************************************
+%% ***********************************************************
+%% Copyfit functions 
+%% ***********************************************************
+%% ***********************************************************
+
+
+%% @doc fit xml copy into panel
+
+-spec fit_xml(XML      :: list(),
+              PanelMap :: map()) -> tuple().
+
+fit_xml(XML, PanelMap) ->
+   fit_xml([], XML, PanelMap, true).
+
+
+fit_xml(Content, [], PanelMap, _Continue) ->
+    io:format("Out of copy~n~n"),
+    {Content, [], PanelMap};
+
+
+fit_xml(Content, XML, PanelMap, false) ->
+    {Content, XML, PanelMap};
+
+
+fit_xml(Content, XML, PanelMap, true) ->
+     [X | XML1] = XML,
+     Xml           = element(2, X),
+     Tag          = get_tag(Xml),
+     Lines        = xml2lines(Xml, PanelMap),
+     Vacancies    = vacancies(Tag, PanelMap),
+     Continue     = Vacancies >= length(Lines),
+     case Continue of
+        true  ->
+                 Content1    = [{Tag, Lines} | Content],
+                 PanelMap1   = update_panel(Tag, Lines, PanelMap),
+                 fit_xml(Content1, XML1, PanelMap1, Continue);
+        false -> fit_xml(Content, XML, PanelMap, Continue)
+     end.
+
+
+
+%% @doc Given content elment, return tag 
+
+-spec get_tag(Xml :: tuple()) -> atom().
+
+get_tag(Xml) ->
+   element(1, Xml).
+
+
+
+%% @doc Transform Xml into lines copyfitted into panel
+
+-spec xml2lines(Xml      :: tuple(),
+                PanelMap :: map()) -> list().
+
+xml2lines(Xml, PanelMap) ->
+   Tag      = get_tag(Xml),
+   RichText = rich_text(Xml, PanelMap),
+   get_lines(Tag, RichText, PanelMap).
+
+
+
+%% @doc rich_text/2 helper 
+
+-spec rich_text(Xml      :: tuple(),
+                PanelMap :: map()) -> list().
+
+rich_text(Xml, PanelMap) ->
+   TypeStyle      = ep_panel:get_typestyle(PanelMap),
+   Tag            = element(1, Xml),
+   FontMap        = ep_typespec:get_fontmap(TypeStyle, Tag),
+   Norm           = ep_block:normalise_xml(Xml, FontMap),
+   {_, _, RichText}  = Norm,
+   RichText.
+
+
+%% @doc Transform xml to lines to fit panel
+
+-spec get_lines(Tag      :: atom(),
+                RichText :: list(),
+                PanelMap :: list()) -> list().
+
+get_lines(Tag, RichText, PanelMap) ->
+   % Vacancies          = vacancies(Tag, PanelMap),
+   {Widths, _Offsets} = line_specs(Tag, PanelMap),
+   Justify            = ep_typestyle:report_justify(Tag),
+   MaybeLines         = ep_line_break:break_richText(RichText, {Justify, Widths}),
+   Lines              = lines(MaybeLines),
+   Lines.
+            
+
+%% @doc Return number of lines that fit in panel 
+
+-spec vacancies(Tag      :: list(),
+                PanelMap :: map()) -> integer().
+
+vacancies(Tag, PanelMap) ->
+   TypeStyle = ep_panel:get_typestyle(PanelMap),
+   ep_panel:get_nlines(TypeStyle, Tag, PanelMap).
+
+%% @doc Return line widths and offsets for a given panel
+
+-spec line_specs(Tag         :: atom(),
+                 PanelMap    :: map()) -> tuple().
+
+
+impose_cost(Adjust, Cost, PanelMap) ->
+    Cost1     = reduce_cost(Adjust, Cost),
+    PanelMap1 = reposition_next_line(Adjust, PanelMap),
+    {Cost1, PanelMap1}.
+
+reduce_cost(Cost, Adjust) ->
+    Cost + Adjust.
+
+reposition_next_line(Adjust, PanelMap) ->
+    NextLine = ep_panel:get_next_line(PanelMap),
+    NextLine1 = NextLine + Adjust,
+    ep_panel:update_next_line(NextLine1, PanelMap).
+
+
+
+
+line_specs(Tag, PanelMap) ->
+    Measure   = ep_panel:get_measure(PanelMap),
+    Margin    = ep_panel:get_margin(PanelMap),
+    Indent    = ep_panel:get_indent(PanelMap),
+    Vacancies = vacancies(Tag, PanelMap),
+    case Tag of
+        p     -> Widths  = [Measure - Indent|lists:duplicate(Vacancies - 1, Measure)],
+                 Offsets = [Margin + Indent|lists:duplicate(Vacancies - 1, Margin)];
+        li    -> Widths  = [Measure - Indent|lists:duplicate(Vacancies - 1, Measure - Indent)],
+                 Offsets = [Margin + Indent|lists:duplicate(Vacancies - 1, Margin + Indent)];
+        ci    -> Widths  = [Measure - Indent|lists:duplicate(Vacancies - 1, Measure - Indent)],
+                 Offsets = [Margin + Indent|lists:duplicate(Vacancies - 1, Margin + Indent)];
+        _     -> Widths  = [Measure|lists:duplicate(Vacancies - 1, Margin)],
+                 Offsets = [Margin|lists:duplicate(Vacancies - 1, Margin)]
+    end,
+    {Widths, Offsets}.
+
+
+
+
+%% @doc Verify that we have valid lines 
+
+-spec lines(MaybeLines :: tuple()) -> list().
+
+lines(impossible) ->
+   io:format("Cannot break line; are widths ok?~n");
+
+lines({Lines, _, _}) ->
+    Lines.
+
+
+%% @doc Update content cursor (NextLine) in panel
+
+-spec update_panel(Tag      :: atom(),
+                   Lines    :: list(),
+                   PanelMap :: map()) -> map().
+
+
+
+%% ***********************************************************
+%% ***********************************************************
+%% Panel functions 
+%% ***********************************************************
+%% ***********************************************************
+
+
+update_panel(Tag, Lines, PanelMap) ->
+   Leading  = ep_typestyle:report_leading(Tag),
+   Consumed = Leading * length(Lines),
+   NextLine = ep_panel:get_next_line(PanelMap) + Consumed,
+   ep_panel:update_next_line(NextLine, PanelMap).
+
+
+
+%% ***********************************************************
+%% ***********************************************************
+%% Paste functions 
+%% ***********************************************************
+%% ***********************************************************
+
+
+%% @doc Paste panel
+
+-spec paste_panel(PDF   :: identifier(),
+                  Job   :: map(),
+                  PanelMap :: map()) -> ok.
+
+paste_panel(PDF, Job, PanelMap) ->
+    ep_panel:panel(PDF, Job, PanelMap).
+
+
+
+paste_copy(Paste, Cost, PanelMap) ->
+    PDF       = eg_pdf:new(),
+    Job       = ep_job:create("Trial Paste", "LRP"),
+
+    Paste1    = lists:reverse(Paste),
+    PanelMap1 = ep_panel:reveal(PanelMap),
+    NameString = "text",
+    ok        = paste_panel(PDF, Job, PanelMap1),
+    ok        = paste(PDF, Paste1, Cost, PanelMap1),
+    ok        = paste_if_li(PDF, Paste1, PanelMap1),
+    ok        = paste_if_ci(PDF, Paste, PanelMap1),
+    OutFile   = "./pdf/galleys/" ++
+                 ?MODULE_STRING ++
+                 "_" ++
+                 NameString ++
+                 "_test.pdf",
+    save(PDF, OutFile).
+
+
+
+%% @doc Paste text elements into panel
+
+-spec paste(PDF      :: identifier(),
+            Paste    :: list(),
+            Cost     :: integer(),
+            PanelMap :: map()) -> ok.
+
+paste(_PDF, [], _Cost,  _PanelMap) ->
+    ok;
+
+paste(PDF, Paste, Cost, PanelMap) ->
+    [Paste1 | MorePaste] = Paste,
+        % io:format("trial_paste3 - MorePaste: ~p~n~n", [MorePaste]),
+    Tag                = element(1, Paste1),
+    Lines              = element(2, Paste1),
+    {Cost1, PanelMap1} = paste_lines(PDF, Tag, Lines, Cost, PanelMap),
+    Paste2             = MorePaste,
+    paste(PDF, Paste2, Cost1, PanelMap1).
+
+
+
+%% @doc Paste lines into panel
+
+-spec paste_lines(PDF     :: identifier(),
+                  Tag     :: atom(),
+                  Lines   :: list(),
+                  Cost    :: integer(),
+                  PanelMap :: map()) -> tuple().
+
+
+paste_lines(PDF, Tag, Lines, [], PanelMap) ->
+    {Widths, Offsets}  = line_specs(Tag, PanelMap),
+    Code               = pdf_code(PDF, Tag, Lines, Widths, Offsets, PanelMap),
+    ok                 = paste(PDF, Code),
+    PanelMap1          = update_panel(Tag, Lines, PanelMap),
+    {[], PanelMap1};
+
+paste_lines(PDF, Tag, Lines, Cost, PanelMap) ->
+        % io:format("Lines: ~p~n ~n", [Lines]),
+    {Cost1, PanelMap1} = impose_cost(-1, Cost, PanelMap),
+    {Widths, Offsets}  = line_specs(Tag, PanelMap),
+    Code               = pdf_code(PDF, Tag, Lines, Widths, Offsets, PanelMap1),
+    ok                 = paste(PDF, Code),
+
+    PanelMap2          = update_panel(Tag, Lines, PanelMap1),
+    {Cost1, PanelMap2}.
+
+
+
+
+paste_if_li(PDF, Paste, PanelMap) ->
+   [Paste1 | MorePaste] = Paste,
+   Tag     = get_tag(Paste1),
+   Margin  = ep_panel:get_margin(PanelMap),
+   Indent  = ep_panel:get_indent(PanelMap) div 2,
+   Radius  = 2,
+   Diff    = ep_typestyle:report_leading(Tag) - Radius,
+   case Tag of
+      li  -> 
+            io:format("===================== Entering paste_if_li/3~n"),
+            {TextX, TextY} = ep_panel:get_text_position(PanelMap),
+             DiffX = TextX + Margin + Indent,
+             DiffY = TextY - Diff,
+             eg_pdf:save_state(PDF),
+             eg_pdf:set_line_width(PDF, 1),
+             eg_pdf:set_dash(PDF, solid),
+             eg_pdf:set_stroke_color(PDF, black),
+             eg_pdf:set_fill_color(PDF, black),
+             eg_pdf:circle(PDF, {DiffX, DiffY}, Radius),
+             eg_pdf:path(PDF, fill_stroke),
+             eg_pdf:restore_state(PDF),
+   io:format("===================== Exiting paste_if_li/3~n~n"), 
+             ok;
+        _  -> ok
+    end.
+
+paste_if_ci(PDF, Paste, PanelMap) ->
+   [Paste1 | MorePaste] = Paste,
+   Tag     = get_tag(Paste1),
+   Size    = ep_typestyle:report_fontsize(Tag),
+   Margin  = ep_panel:get_margin(PanelMap),
+   Diff    = ep_typestyle:report_leading(Tag),
+   case Tag of
+      ci  -> {TextX, TextY} = ep_panel:get_text_position(PanelMap),
+             DiffX = TextX + Margin,
+             DiffY = TextY  - Diff,
+             eg_pdf:save_state(PDF),
+             eg_pdf:set_line_width(PDF, 1),
+             eg_pdf:set_dash(PDF, solid),
+             eg_pdf:set_stroke_color(PDF, black),
+             eg_pdf:set_fill_color(PDF, white),
+             eg_pdf:rectangle(PDF, {DiffX, DiffY}, {Size, Size}),
+             eg_pdf:path(PDF, fill_stroke),
+             eg_pdf:restore_state(PDF),
+             ok;
+        _  -> ok
+    end.
+
+%% @doc Transform lines to PDF code
+
+-spec pdf_code(PDF            :: identifier(),
+               Tag            :: atom(),
+               Lines          :: list(),
+               Widths         :: list(),
+               Offsets        :: list(),
+               PanelMap       :: map()) -> string().
+
+
+pdf_code(PDF, Tag, Lines, Widths, Offsets, PanelMap) ->
+   {TextX, TextY}    = ep_panel:get_text_position(PanelMap),
+   Justify           = ep_typestyle:report_justify(Tag),
+   Vacancies         = vacancies(Tag, PanelMap),
+   TypeStyle         = ep_panel:get_typestyle(PanelMap),
+   Leading           = ep_typestyle:report_leading(Tag),
+   Code = ep_richText2pdf:richText2pdf(PDF,
+                                       TextX,
+                                       TextY,
+                                       Justify,
+                                       0,
+                                       Lines,
+                                       Leading,
+                                       Widths,
+                                       Offsets),
+    Code.
+
+%% @doc Append PDF code to text stream in PDF
+
+-spec paste(PDF  :: identifier(),
+            Code :: string()) -> ok.
+
+paste(PDF, Code) ->
+  eg_pdf:begin_text(PDF),
+  eg_pdf:append_stream(PDF, Code),
+  eg_pdf:end_text(PDF),
+  ok.
+
+
+
+save(PDF, OutFile) ->
+    ep_job:save_job(PDF, OutFile).
+
+
+save(PDF) ->
+    OutFile = "./pdf/galleys/" ++ ?MODULE_STRING ++ ".trial.pdf",
+    ep_job:save_job(PDF, OutFile).
+
+
+
+
+
+
+
+
+
+one_line(PDF, Text, Job, TextMap) ->
+    {PaperStock, PagePosition} = ep_job:stock_position(Job),
+    Font          = maps:get(font, TextMap),
+    Size          = maps:get(size, TextMap),
+    Leading       = maps:get(leading, TextMap),
+    % Justification = maps:get(justification, TextMap),
+    Rot           = maps:get(rot, TextMap),
+    Position      = maps:get(position, TextMap),
+    Position1     = ep_lib:impose_xy(Position, PagePosition, PaperStock),
+    {X, Y}        = Position1,
+    eg_pdf:begin_text(PDF),
+    eg_pdf:set_font(PDF, Font, Size),
+%    eg_pdf:set_text_pos(PDF, X, Y),
+    eg_pdf:set_text_leading(PDF,Leading),
+    eg_pdf:text_rotate_position(PDF, X, Y, Rot),
+    eg_pdf:textbr(PDF, Text),
+    eg_pdf:end_text(PDF),
+    ok.
+
+
+
+text_lines(PDF, Position, LineHeight) ->
+    {X, Y} = Position,
+    eg_pdf:begin_text(PDF),
+    eg_pdf:set_text_pos(PDF, X, Y),
+    eg_pdf:set_text_leading(PDF, LineHeight).
+
+next_text_line(PDF, Text, Font, Size) ->
+    eg_pdf:set_font(PDF, Font, Size),
+    eg_pdf:textbr(PDF, Text).
+
+end_text_lines(PDF) ->
+    eg_pdf:break_text(PDF),
+    eg_pdf:end_text(PDF).
+
+
+test_sample(PDF, Position) ->
+    %% Much factoring needed here
+    {X, Y} = Position,
+
+    eg_pdf:begin_text(PDF),
+
+    eg_pdf:set_text_pos(PDF, X, Y),
+    eg_pdf:set_text_leading(PDF,14),
+    eg_pdf:set_font(PDF,"Blahonga", 12),
+    eg_pdf:textbr(PDF, "The blahonga font will fall back to Times-Roman"),
+    eg_pdf:textbr(PDF, "This is a check of ( ) \\ escape chars"),
+    eg_pdf:kernedtext(PDF,
+                   [ "This is a test of Kerning: A", 120, "W",
+                     120, "A", 95, "Y again" ]),
+    eg_pdf:break_text(PDF),
+    eg_pdf:textbr(PDF, "This is a text without Kerning: AWAY again"),
+    eg_pdf:break_text(PDF),
+    eg_pdf:end_text(PDF).
+

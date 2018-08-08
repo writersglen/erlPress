@@ -6,74 +6,34 @@
   \___|_|  |_|_|   |_|  \___||___/___/
 
 
-========
-erlPress
-========
+=============
+erlPress_core
+=============
 
-The erlPress print-media page layout and typesetting system modifies and extends the Hugh Watkins fork of the Erlang Erlguten library originally developed by Joe Armstrong.
+erlPress_core modifies and extends the Hugh Watkins fork of the Erlang Erlguten library originally developed by Joe Armstrong.
 
 https://github.com/hwatkins/erlguten
 
-ErlPress is a work-in-progress with many deficiencies and rough-edges. You might consider it a PDF generation test bed. The MIT license encourages evolution toward world-class functionality and performance including:
+erlPress_core is the base library for many as-yet-to_be-developed Erlang applications for creative print media and publishing tools.
 
-* print project management
-* page design and layout
-* copyfitting
-* typesetting
-* bitmap and vector scaling and placement
+To review current erlPpress_core functionality, display ../pdf/galleys/ep_show_n_tell.pdf.
 
-We imagine two versions:
+To see ep_show_n_tell.pdf source, see ../tests/ep_show_n_tell.erl.
 
-1. Embedded - based on pre-defined document/page layout templates, markdown copy, and Erlang functions
+See ../src/guides/prograpmmer_guide.txt for programming details. 
 
-2. Web-based GUI along the lines of Scribus
+ErlPress_core, is a work-in-progress. Should you find deficiencies and rough-edges, we'd love to hear abouat them. The MIT license encourages evolution toward world-class print-media design and development applications ranging from business cards to books.
+
+Imagine:
+
+. Easy-to-use documentation tools
+
+. An application for development of marketing collateral along the lines Scribus, but web-based
+
+. An Erlang-based book-publishing pipeline
 
 
 ===========
 Directories
 ===========
-copy     - experiments with markdown
-elements - experiments with PDF geometric elements
-erlguten - useful erlguten modules
-fonts    - fonts from erlguten
-layout   - page layout structures and tests
-lib      - library functions
-media    - paper and digital media dimensions and conversions
-parser   - experiments with markdown parser
-paste_up - copyfitting functions
-typespec - type specification functions
 
-Interesting stuff to explore:
-
-. GEOMETRIC ELEMENTS
-
-See src/elements
-
-. PAGE LAYOUT
-
-See src/layout
-
-. Structures
-
-ep_box.erl
-ep_panel.erl
-ep_page.erl
-
-. Functions
-
-ep_block.erl - copyfitting functions factored from erlguten
-ep_grid.erl
-
-. Example page grids
-
-ep_page_grids.erl
-
-
-
-==============
-3rd Party Libs
-==============
-
-. CMARK: CommonMark parsing and rendering library and program in C
-  to convert cmark_nodes to ERLANG terms strings:
-  https://github.com/skaee/cmark

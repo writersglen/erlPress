@@ -1,0 +1,52 @@
+paste_panels(PDF, Job, XML, Beads) ->
+   RichText               = rich_text(XML, Beads),
+   Lines                  = get_lines(RichText, XML, Beads),
+   Vacancies              = vacancies(XML, Beads),
+   {Paste, Spill, Action} = allocate_lines(Lines, Vacancies),
+   io:format("!!!!!!!!!! Action: ~p~n", [Action]),
+    case Action of
+      paste    ->  {Recurse, XML1, Beads1} = paste(PDF, Paste, XML, Beads);
+      dispatch ->  {Recurse, XML1, Beads1} = dispatch(PDF, Job,  Paste, XML, Beads);
+      spill    ->  {Recurse, XML1, Beads1} = spill(PDF, Job, Paste, Spill, XML, Beads),
+                   io:format("Paste: ~p~n", [Paste]),
+                   io:format("Spill: ~p~n", [Spill])
+    end,
+    case Recurse of
+       recurse -> paste_panels(PDF, Job, XML1, Beads1);
+       stumped -> io:format("I'm stumped~~n~n")
+    end.
+
+
+
+get_lines(RichText, XML, Beads) ->
+   Tag                = get_tag(XML),
+   PanelMap           = get_panelmap(Beads),
+   Vacancies          = vacancies(XML, Beads),
+   {Widths, _Offsets} = line_specs(Tag, PanelMap, Vacancies),
+   Justify            = ep_typestyle:report_justify(Tag),
+   MaybeLines         = ep_block:break_rich_text(RichText, Justify, Widths),
+   Lines              = lines(MaybeLines),
+   Lines.
+
+allocate_lines(Lines, Vacancies) ->
+   LengthLines = length(Lines),
+   if
+      Vacancies > LengthLines ->   Paste  = Lines,
+                                   Spill  = [],
+                                   Action = paste;
+      Vacancies == LengthLines -> {Paste, Spill} = lists:split(Vacancies, Lines),
+                                   Action = dispatch;
+
+      Vacancies  < LengthLines ->  {Paste, Spill} = lists:split(Vacancies, Lines),
+                                   Action = spill
+   end,
+   {Paste, Spill, Action}.
+
+
+
+vacancies(XML, Beads) ->
+   Tag               = get_tag(XML),
+   PanelMap          = get_panelmap(Beads),
+   TypeStyle         = ep_panel:get_typestyle(PanelMap),
+   ep_panel:get_nlines(TypeStyle, Tag, PanelMap).
+

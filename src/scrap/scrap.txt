@@ -1,0 +1,85 @@
+ %% *********************************************************  
+%% rich_text/2 helper
+%% *********************************************************  
+
+get_copyspecs(TypedArticle) ->
+   [TypedText | _TypedCopyList] = TypedArticle,
+   get_copyspec(TypedText).
+
+get_copyspec(TypedText) ->
+   {{Typespec}, TaggedText} = TypedText,
+   {Typespec, TaggedText}.
+
+% #{justification => justified,leading => 15,pt_size => 12,
+%  tagmap =>
+%      {[p],
+%       [{default,{face,eg_font_13,12,0,default,true}},
+%        {em,{face,eg_font_10,12,0,default,true}},
+%        {b,{face,eg_font_11,12,0,default,true}},
+%        {code,{face,eg_font_3,12,0,default,true}}]}}
+
+% render_box(PDF, Box) ->
+%   {Border, BorderColor, BGColor, TxtColor} = ep_box:background(Box),
+%   {Border, BorderColor, BGColor, TxtColor} = ep_panel:background(Box),
+%   {X, Y, W, H} = ep_panel:outer_box(Box),
+%   X1 = X - Border,
+%   Y1 = Y - Border, 
+%   W1 = 
+%    eg_pdf:set_line_width(PDF, Border),
+%    eg_pdf:set_fill_color(PDF, BorderColor),
+%    eg_pdf:rectangle(PDF,{X - Border, Y - Border },{W + (2 * Border),H + (2 * Border)}),
+%    eg_pdf:path(PDF, fill),
+%    eg_pdf:set_fill_color(PDF, BGColor),
+%    eg_pdf:rectangle(PDF,{X, Y},{W,H}),
+%    eg_pdf:path(PDF, fill),
+%    ep_layout_prims:check_box(PDF, X, Y),
+%    eg_pdf:set_fill_color(PDF, TxtColor).
+
+
+
+new(PtSize, Justification, TagMap) ->
+   Leading = round(?LEADING_FACTOR * PtSize),
+   List = [{pt_size, PtSize},
+           {leading, Leading},
+           {justification, Justification},
+           {tagmap, TagMap}
+          ],
+   maps:from_list(List).
+
+% layout_widths(JumpList, Tag, TypeSpec) ->
+%   layout_widths([], JumpList, Tag, TypeSpec).
+
+
+%% ***********************************************
+
+
+type_specs(Format, MDFileName) ->
+    TypedBlocks = ep_typespec:specify(Format, MDFileName),
+    get_type_parameters(TypedBlocks).
+
+
+-spec ep_copyfit:get_type_parameters(list()) -> list().
+
+get_type_parameters(TypedBlocks) ->
+   [type_parameters(Block) || Block <- TypedBlocks].
+
+-spec ep_copyfit:type_parameters(tuple()) -> {map(), tuple()}.
+
+type_parameters(Block) ->
+    {{TypeSpec}, Content} = Block,
+%    parse(Content).
+
+%    {Tag, EpText} = parse(Content),
+%    {Tag, EpText}.
+
+
+%% Note: parse/1 fails when all.md hits [].
+
+parse(Content) ->
+    {Tag, Text} = Content,
+    EpText = ep_parse:text(Text),  %% LRP's parser
+    EpText1 = ep_parse:eptext2xml(EpText),
+    EpText1.
+
+
+ 

@@ -15,12 +15,13 @@
 
 -module (ep_text_block).
 
--export ([create/3, text_block/3]).
+-export ([fit_copy/2, create/3, text_block/3]).
+-export([update_tag/2]).
 
 % -compile(export_all).
 
 -define(TYPETAG, report).
--define(FACE, ep_typespec:report_faces(p)).
+-define(FACE, ep_report_sty:report_faces(p)).
 -define(LEADING, 18).
 -define(NLINES, 10).
 -define(JUSTIFY, justified).   
@@ -40,6 +41,16 @@
 %% ***********************************************************
 %% Text block
 %% ***********************************************************
+
+
+%% @doc Fit text to PanelMap 
+
+-spec fit_copy(Text      :: list(),
+               PanelMap  :: integer()) -> list().
+
+fit_copy(Text, PanelMap) ->
+    XML = ep_xml_lib:parse_xml(Text),
+    ep_xml_lib:fit_xml(XML, PanelMap).
 
 
 
@@ -93,7 +104,6 @@ text_block(PDF, Job, BlockMap) ->
 
     BoxHeight        = TextHeight + (2 * Margin),
     BoxWidth         = Measure,
-    io:format("BoxWidth: ~p~n", [BoxWidth]),
     BoxSize          = {BoxWidth, BoxHeight},
     Radius           = maps:get(radius, BlockMap),
     BoxMap           = ep_round_rect:create({X, Y + BoxHeight}, 
@@ -106,6 +116,10 @@ text_block(PDF, Job, BlockMap) ->
    % Draw text
     ep_block:block(PDF, Job, BlockMap),
     ok.
+
+
+update_tag(Tag, BlockMap) ->
+   maps:put(tag, Tag, BlockMap).
 
 
 %% @doc Transfer values from BlockMap to BoxMap

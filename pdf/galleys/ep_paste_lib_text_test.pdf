@@ -1,0 +1,348 @@
+%PDF-1.4
+1 0 obj
+<<
+>>
+endobj
+2 0 obj
+<<
+/Type  /Font 
+/Subtype  /Type1 
+/Name  /F10 
+/BaseFont  /Times-Italic 
+/Encoding  /MacRomanEncoding 
+>>
+endobj
+3 0 obj
+<<
+/Type  /Font 
+/Subtype  /Type1 
+/Name  /F13 
+/BaseFont  /Times-Roman 
+/Encoding  /MacRomanEncoding 
+>>
+endobj
+4 0 obj
+<<
+/Type  /Font 
+/Subtype  /Type1 
+/Name  /F7 
+/BaseFont  /Helvetica 
+/Encoding  /MacRomanEncoding 
+>>
+endobj
+5 0 obj
+<<
+/F10  2 0 R 
+/F13  3 0 R 
+/F7  4 0 R 
+>>
+endobj
+6 0 obj
+<<
+/Type  /Page 
+/Count  1 
+/MediaBox  [  0  0  595  842  ] 
+/Kids  [  8 0 R  ] 
+/Resources <<
+/Font  5 0 R 
+/XObject  1 0 R 
+/ProcSet  [  /PDF  /Text  ] 
+>>
+
+>>
+endobj
+7 0 obj
+<<
+/Length  6949 
+>>
+
+stream
+1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 1.00 1.00 1.00  rg
+ 82 72  m 522 72  l 527.52 72 532 77.52 532 82  c
+532 762  l 532 767.52 527.52 772 522 772  c
+82 772  l 77.52 772 72 767.52 72 762  c
+72 82  l 72 77.52 77.52 72 82 72  c
+  B  
+BT
+ 1 0 0 1 72 772 Tm 94  -45 TD /F7 36 Tf 0 Tw 0 0 0 rg [(er)-15(lPress_core)15(.01)0] TJ  
+ET
+ 
+BT
+ 1 0 0 1 72 715 Tm 40  -18 TD /F13 12 Tf 1.92 Tw 0 0 0 rg [(User)0( )0(applications)0( )0(based)0( )0(on)0( )0(the)0( )0(Adobe)0( )0(Portable)0( )0(Document)0( )0(F)15(ormat,)0( )0(PDF)80(,)0( )0(compose)0] TJ -30  -18 TD 0.10 Tw [(te)15(xt,)0( )0(images,)0( )0(2-D)0( )0(geometric)0( )0(objects,)0( )0(and)0( )0(presentation)0( )0(instructions)0( )0(for)0( )0(distrib)20(ution)0( )0(across)0( )0(di-)0] TJ 0  -18 TD 0.11 Tw [(v)15(erse)0( )0(output)0( )0(de)25(vices.)0( )0(The)0( )0(goal)0( )0(is)0( )0(f)10(aithful)0( )0(and)0( )0(consistent)0( )0(display)0( )0(of)0( )0(human-readable)0( )0(content.)0] TJ 0  -18 TD 0 Tw [(Presentation)0( )0(instructions)0( )0(are)0( )0(encoded)0( )0(in)0( )0(the)0( )0(page)0( )0(description)0( )0(language)0( )0(Adobe)0( )0(PostScript.)0] TJ  
+ET
+ 
+BT
+ 1 0 0 1 72 643 Tm 40  -18 TD /F10 12 Tf 0.35 Tw 0 0 0 rg [(erlPr)37(ess_cor)37(e)15(.01)0] TJ /F13 12 Tf [( )0(functions)0( )0(transform)0( )0(human-readable)0( )0(content)0( )0(into)0( )0(Erlang)0( )0(data)0( )0(struc-)0] TJ -30  -18 TD -0.59 Tw [(tures,)0( )0(generate)0( )0(Postscript)0( )0(object)0( )0(code,)0( )0(and)0( )0(format)0( )0(the)0( )0(code)0( )0(into)0( )0(properly)0( )0(structured)0( )0(PDF)0( )0(f)20(iles.)0] TJ 0  -18 TD 0 Tw [(Based)0( )0(on)0( )0] TJ /F10 12 Tf [(PDF)0( )0(Refer)37(ence:)0( )0(thir)37(d)0( )0(edition,)0( )0(V)111(er)10(sion)0( )0(1.4)0] TJ /F13 12 Tf [(,)0( )0] TJ /F10 12 Tf [(erlPr)37(ess_lib)40(.01)0] TJ /F13 12 Tf [( )0(pro)15(vides)0( )0(functions)0( )0(to:)0] TJ  
+ET
+ 
+BT
+ 1 0 0 1 72 577 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(Display)0( )0(Adobe)0( )0(T)80(ype)0( )0(I)0( )0(fonts)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 0.00 0.00 0.00  rg
+ 99 561  m 99 562.10 98.10 563 97 563  c
+95.90 563 95 562.10 95 561  c
+95 559.90 95.90 559 97 559  c
+98.10 559 99 559.90 99 561  c
+  B  
+Q
+ 
+BT
+ 1 0 0 1 72 559 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(Position)0( )0(and)0( )0(cop)10(yf)20(it)0( )0(te)15(xt)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 0.00 0.00 0.00  rg
+ 99 543  m 99 544.10 98.10 545 97 545  c
+95.90 545 95 544.10 95 543  c
+95 541.90 95.90 541 97 541  c
+98.10 541 99 541.90 99 543  c
+  B  
+Q
+ 
+BT
+ 1 0 0 1 72 541 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(Justify)65(,)0( )0(k)10(ern,)0( )0(and)0( )0(rotate)0( )0(te)15(xt)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 0.00 0.00 0.00  rg
+ 99 525  m 99 526.10 98.10 527 97 527  c
+95.90 527 95 526.10 95 525  c
+95 523.90 95.90 523 97 523  c
+98.10 523 99 523.90 99 525  c
+  B  
+Q
+ 
+BT
+ 1 0 0 1 72 523 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(Specify)0( )0(and)0( )0(position)0( )0(images)0( )0(and)0( )0(graphic)0( )0(elements)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 0.00 0.00 0.00  rg
+ 99 507  m 99 508.10 98.10 509 97 509  c
+95.90 509 95 508.10 95 507  c
+95 505.90 95.90 505 97 505  c
+98.10 505 99 505.90 99 507  c
+  B  
+Q
+ 
+BT
+ 1 0 0 1 72 505 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(Support)0( )0(checklists)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 0.00 0.00 0.00  rg
+ 99 489  m 99 490.10 98.10 491 97 491  c
+95.90 491 95 490.10 95 489  c
+95 487.90 95.90 487 97 487  c
+98.10 487 99 487.90 99 489  c
+  B  
+Q
+ 
+BT
+ 1 0 0 1 72 475 Tm 40  -18 TD /F10 12 Tf -0.05 Tw 0 0 0 rg [(erlPr)37(ess_lib)40(.01)0] TJ /F13 12 Tf [( )0(re)25(vises)0( )0(and)0( )0(e)15(xtends)0( )0(the)0( )0(Hugh)0( )0(W)80(atkins)0( )0(fork)0( )0(of)0( )0(the)0( )0(Erlang)0( )0(Erlguten)0( )0(lib-)0] TJ -30  -18 TD 0 Tw [(rary)0( )0(originally)0( )0(de)25(v)15(eloped)0( )0(by)0( )0(Joe)0( )0(Armstrong.)0( )0(See:)0( )0] TJ /F10 12 Tf [(https://github)40(.com/hwatkins/erlguten)0] TJ  
+ET
+ 
+BT
+ 1 0 0 1 72 439 Tm 10  -27 TD /F7 18 Tf 0 Tw 0 0 0 rg [(Roadmap:)0] TJ  
+ET
+ 
+BT
+ 1 0 0 1 72 400 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(Extend)0( )0(and)0( )0(deb)20(ug)0( )0(Markdo)25(wn)0( )0(parsing)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 1.00 1.00 1.00  rg
+ 82 382 9.60 9.60  re   B  
+Q
+ 
+BT
+ 1 0 0 1 72 382 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(Ordered)0( )0(lists)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 1.00 1.00 1.00  rg
+ 82 364 9.60 9.60  re   B  
+Q
+ 
+BT
+ 1 0 0 1 72 364 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(F)15(ootnotes)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 1.00 1.00 1.00  rg
+ 82 346 9.60 9.60  re   B  
+Q
+ 
+BT
+ 1 0 0 1 72 346 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(T)80(ables)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 1.00 1.00 1.00  rg
+ 82 328 9.60 9.60  re   B  
+Q
+ 
+BT
+ 1 0 0 1 72 328 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(Articles)0( )0(and)0( )0(beads)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 1.00 1.00 1.00  rg
+ 82 310 9.60 9.60  re   B  
+Q
+ 
+BT
+ 1 0 0 1 72 310 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(T)70(est!)0( )0(T)70(est!)0( )0(T)70(est!)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 1.00 1.00 1.00  rg
+ 82 292 9.60 9.60  re   B  
+Q
+ 
+BT
+ 1 0 0 1 72 292 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(T)35(rueT)80(ype)0( )0(and)0( )0(OpenT)80(ype)0( )0(fonts)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 1.00 1.00 1.00  rg
+ 82 274 9.60 9.60  re   B  
+Q
+ 
+BT
+ 1 0 0 1 72 274 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(Impostion)0( )0(and)0( )0(layout)0( )0(functions)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 1.00 1.00 1.00  rg
+ 82 256 9.60 9.60  re   B  
+Q
+ 
+BT
+ 1 0 0 1 72 256 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(PDF-to-Erlang)0( )0(functions)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 1.00 1.00 1.00  rg
+ 82 238 9.60 9.60  re   B  
+Q
+ 
+BT
+ 1 0 0 1 72 238 Tm 40  -18 TD /F13 12 Tf 0 Tw 0 0 0 rg [(Applications)0( )0(for)0( )0(di)25(v)15(erse)0( )0(print)0( )0(formats)0] TJ  
+ET
+ 
+q
+ 1 w
+ [] 0 d
+ 0.00 0.00 0.00  RG
+ 1.00 1.00 1.00  rg
+ 82 220 9.60 9.60  re   B  
+Q
+ 
+BT
+ 1 0 0 1 72 208 Tm 40  -18 TD /F10 12 Tf 1.09 Tw 0 0 0 rg [(erlPr)37(ess_cor)37(e)15(.01)0] TJ /F13 12 Tf [( )0(pro)15(vides)0( )0(a)0( )0(foundation)0( )0(for)0( )0(de)25(v)15(elopment)0( )0(of)0( )0(Erlang)0( )0(applications)0( )0(that)0] TJ -30  -18 TD 0.04 Tw [(support)0( )0(creati)25(v)15(e)0( )0(generation)0( )0(of)0( )0(print)0( )0(formats)0( )0(ranging)0( )0(from)0( )0(b)20(usiness)0( )0(cards)0( )0(to)0( )0(technical)0( )0(books.)0] TJ 0  -18 TD -0.57 Tw [(W)80(e)0( )0(immodestly)0( )0(imagine)0( )0(the)0( )0(e)25(v)20(olution)0( )0(of)0( )0(a)0( )0(comprehensi)25(v)15(e)0( )0(Human)0( )0(Communication)0( )0(Platform,)0] TJ 0  -18 TD 0 Tw [(HCP)111(,)0( )0(parallel)0( )0(to)0( )0(O)40(TP)111(.)0] TJ  
+ET
+ 
+BT
+ 1 0 0 1 72 136 Tm 40  -18 TD /F13 12 Tf 0 Tw [( )0] TJ 0 0 0 rg [(Join)0( )0(in!)0] TJ  
+ET
+ 
+BT
+ 1 0 0 1 72 118 Tm 40  -18 TD /F13 12 Tf 0 Tw [( )0] TJ 0 0 0 rg [(Help)0( )0(mak)10(e)0( )0(it)0( )0(so.)0] TJ  
+ET
+ 
+endstream
+endobj
+8 0 obj
+<<
+/Type  /Page 
+/Parent  6 0 R 
+/Contents  7 0 R 
+>>
+endobj
+9 0 obj
+<<
+/Type  /Catalog 
+/Pages  6 0 R 
+>>
+endobj
+10 0 obj
+<<
+/Creator  (Erlang) 
+/CreationDate (D:20180807175359)
+/Producer  (erlguten-3.1) 
+/Author  () 
+/Title  () 
+/Subject  () 
+/Keywords  (ErlangKeyword) 
+>>
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000009 00000 n 
+0000000030 00000 n 
+0000000152 00000 n 
+0000000273 00000 n 
+0000000391 00000 n 
+0000000450 00000 n 
+0000000627 00000 n 
+0000007631 00000 n 
+0000007700 00000 n 
+0000007753 00000 n 
+trailer
+<<
+/Size 11
+/Root 9 0 R
+/Info 10 0 R
+>>
+startxref
+7922
+%%EOF
